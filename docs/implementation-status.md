@@ -14,6 +14,7 @@ and tests that demonstrate the change.
 | Prototype home | Three synthetic missions, fixed window and preferences, editable budget | [Page](../src/app/page.tsx) |
 | Filtering and ranking | Compares declared duration/cost and matching tags; not round-trip feasibility | [Domain](../src/domain/missions.ts) |
 | Deterministic return feasibility | Implemented domain slice: fresh route evidence, asymmetric legs, margin classification, active evaluation time, and invalid-input rejection | [Feasibility domain](../src/domain/feasibility.ts), [Tests](../src/domain/feasibility.test.ts) |
+| Security baseline utilities | Implemented reusable environment, provider URL, payload-size and diagnostic redaction controls; not yet wired to external adapters | [Security utilities](../src/config/security.ts), [Tests](../src/config/security.test.ts) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
 | Saved/active mission | React memory only; reload loses these choices | [Page state](../src/app/page.tsx) |
 | Local persistence, import/export | Not implemented | [Data target](./data/README.md#persistence-and-migrations) |
@@ -37,6 +38,8 @@ and tests that demonstrate the change.
   application integration remain unimplemented.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
+- The security baseline utilities are tested but are not a deployment boundary
+  until Route Handlers, adapters, headers and runtime configuration use them.
 
 These are implementation follow-ups, not fixed by documenting the target.
 Do not use this demo to make real travel or return-time decisions.

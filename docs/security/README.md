@@ -8,6 +8,24 @@
 This document specifies required controls; it is not a security audit or a
 claim that they are implemented. Consult [implementation status](../implementation-status.md).
 
+## Implemented baseline
+
+The current domain-independent baseline is implemented in
+[security.ts](../../src/config/security.ts) and covered by
+[security tests](../../src/config/security.test.ts):
+
+- optional LLM configuration fails when an enabled provider has no real key;
+- secret-looking `NEXT_PUBLIC_*` names are rejected;
+- provider URLs require HTTP(S), have no embedded credentials, and match an
+  explicit host allowlist;
+- local provider URLs require an explicit development option;
+- payload sizes are bounded before parsing;
+- sensitive fields are redacted recursively for diagnostic structures.
+
+These helpers are not yet wired to a Route Handler or external adapter.
+Therefore they do not certify a deployment, authenticate a remote instance,
+configure CSP, or replace provider-specific response schemas.
+
 ## Security objectives
 
 - Never publish the author's personal data or credentials.
