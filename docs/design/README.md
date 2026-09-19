@@ -29,6 +29,7 @@ information always outrank decoration.
 | [Interaction states](./interaction-states.md) | Loading, error, success, active mission, and microinteraction behavior |
 | [Accessibility](./accessibility.md) | Accessibility requirements and verification checklist |
 | [Screen specification template](./screen-spec-template.md) | Required planning artifact before implementing a significant screen |
+| [Plan Now configurator](./plan-now.md) | Current implementation and evidence for the first planning screen |
 
 ## Required workflow
 

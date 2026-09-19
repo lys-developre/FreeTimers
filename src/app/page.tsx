@@ -6,6 +6,7 @@ import {
   rankMissions,
   type Mission,
 } from "@/domain/missions";
+import { createPlan } from "@/domain/plan";
 import styles from "./page.module.css";
 
 const missions: Mission[] = [
@@ -40,19 +41,65 @@ const missions: Mission[] = [
 
 export default function Home() {
   const [budget, setBudget] = useState(100);
+  const [travelers, setTravelers] = useState(1);
+  const [transport, setTransport] = useState<"car" | "motorcycle" | "bicycle" | "walking">("car");
+  const [startsAt, setStartsAt] = useState("2026-09-19T17:00");
+  const [returnDeadline, setReturnDeadline] = useState("2026-09-20T05:00");
+  const [latitude, setLatitude] = useState("40.4168");
+  const [longitude, setLongitude] = useState("-3.7038");
   const [saved, setSaved] = useState<string[]>([]);
   const [active, setActive] = useState<string | null>(null);
-  const window = useMemo(
-    () =>
-      createTimeWindow(
-        "2026-09-19T17:00:00+02:00",
-        "2026-09-20T05:00:00+02:00",
-      ),
-    [],
+  const planState = useMemo(() => {
+    try {
+      const plan = createPlan({
+        startsAt: new Date(startsAt).toISOString(),
+        returnDeadline: new Date(returnDeadline).toISOString(),
+        timeZone: "Europe/Madrid",
+        returnMarginMinutes: 30,
+        origin: {
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          source: "manual",
+        },
+        hub: {
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          source: "manual",
+        },
+        transport:
+          transport === "walking" || transport === "bicycle"
+            ? { mode: transport }
+            : { mode: transport, vehicleId: `demo-${transport}` },
+        travelers,
+        budget: { minorUnits: Math.round(budget * 100), currency: "EUR" },
+      });
+      return { plan, error: null };
+    } catch (error) {
+      return {
+        plan: null,
+        error: error instanceof Error ? error.message : "Configuración inválida",
+      };
+    }
+  }, [
+    budget,
+    latitude,
+    longitude,
+    returnDeadline,
+    startsAt,
+    transport,
+    travelers,
+  ]);
+  const timeWindow = useMemo(
+    () => planState.plan
+      ? createTimeWindow(planState.plan.startsAt, planState.plan.returnDeadline)
+      : null,
+    [planState.plan],
   );
   const recommendations = useMemo(
-    () => rankMissions(missions, window, { budget, tags: ["motor", "carretera"] }),
-    [budget, window],
+    () => timeWindow
+      ? rankMissions(missions, timeWindow, { budget, tags: ["motor", "carretera"] })
+      : [],
+    [budget, timeWindow],
   );
 
   return (
@@ -62,7 +109,7 @@ export default function Home() {
         <span>Solo para ti · Local-first</span>
       </nav>
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>SÁBADO · 12 HORAS DISPONIBLES</p>
+        <p className={styles.eyebrow}>PLAN AHORA · CONFIGURACIÓN LOCAL</p>
         <h1>¿Qué merece la pena vivir con el tiempo que tienes?</h1>
         <p className={styles.lead}>
           No necesitas más opciones. Necesitas una misión que encaje contigo,
@@ -71,21 +118,44 @@ export default function Home() {
         <p className={styles.privateNote}>
           Una herramienta personal: tus misiones y recuerdos son tuyos.
         </p>
-        <div className={styles.windowCard}>
-          <div>
-            <span className={styles.label}>Tu ventana</span>
-            <strong>Viernes 17:00 → Sábado 05:00</strong>
+        <div className={styles.planner}>
+          <div className={styles.plannerField}>
+            <label htmlFor="starts-at">Desde</label>
+            <input id="starts-at" type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} />
           </div>
-          <label>
-            Presupuesto
-            <input
-              type="number"
-              min="0"
-              value={budget}
-              onChange={(event) => setBudget(Number(event.target.value))}
-            />
-            €
-          </label>
+          <div className={styles.plannerField}>
+            <label htmlFor="return-deadline">Volver antes de</label>
+            <input id="return-deadline" type="datetime-local" value={returnDeadline} onChange={(event) => setReturnDeadline(event.target.value)} />
+          </div>
+          <div className={styles.plannerField}>
+            <label htmlFor="budget">Presupuesto total (€)</label>
+            <input id="budget" type="number" min="0" step="1" value={budget} onChange={(event) => setBudget(Number(event.target.value))} />
+          </div>
+          <div className={styles.plannerField}>
+            <label htmlFor="travelers">Personas</label>
+            <input id="travelers" type="number" min="1" step="1" value={travelers} onChange={(event) => setTravelers(Number(event.target.value))} />
+          </div>
+          <div className={styles.plannerField}>
+            <label htmlFor="transport">Cómo te mueves</label>
+            <select id="transport" value={transport} onChange={(event) => setTransport(event.target.value as typeof transport)}>
+              <option value="car">Coche</option>
+              <option value="motorcycle">Moto</option>
+              <option value="bicycle">Bicicleta</option>
+              <option value="walking">A pie</option>
+            </select>
+          </div>
+          <fieldset className={styles.locationFields}>
+            <legend>Hub manual</legend>
+            <label htmlFor="latitude">Latitud</label>
+            <input id="latitude" inputMode="decimal" value={latitude} onChange={(event) => setLatitude(event.target.value)} />
+            <label htmlFor="longitude">Longitud</label>
+            <input id="longitude" inputMode="decimal" value={longitude} onChange={(event) => setLongitude(event.target.value)} />
+          </fieldset>
+          {planState.error ? (
+            <p className={styles.formError} role="alert">{planState.error}</p>
+          ) : (
+            <p className={styles.formHint}>La viabilidad de regreso aún no está calculada: faltan rutas reales.</p>
+          )}
         </div>
       </section>
       <section className={styles.results}>
@@ -94,14 +164,14 @@ export default function Home() {
             <p className={styles.eyebrow}>MISIÓN RADAR</p>
             <h2>Tres formas de usar tu ventana</h2>
           </div>
-          <span>{recommendations.length} compatibles</span>
+          <span>{recommendations.length} propuestas demo</span>
         </div>
         <div className={styles.grid}>
           {recommendations.map((mission, index) => (
             <article className={styles.mission} key={mission.id}>
               <div className={styles.missionTopline}>
                 <span className={styles.badge}>
-                  {index === 0 ? "Zona segura" : index === 1 ? "Expansión" : "Descubrimiento"}
+                  {index === 0 ? "Afinidad directa" : index === 1 ? "Expansión" : "Descubrimiento"}
                 </span>
                 <span className={styles.score}>{mission.score}%</span>
               </div>

@@ -75,6 +75,71 @@
   background: rgba(255, 253, 248, 0.6);
 }
 
+.planner {
+  display: grid;
+  max-width: 760px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 44px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.6);
+}
+
+.plannerField,
+.locationFields {
+  display: grid;
+  gap: 6px;
+}
+
+.plannerField label,
+.locationFields label,
+.locationFields legend {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.plannerField input,
+.plannerField select,
+.locationFields input {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--green);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+}
+
+.locationFields {
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+}
+
+.locationFields legend {
+  grid-column: 1 / -1;
+  padding: 0 4px;
+}
+
+.formHint,
+.formError {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.formHint {
+  color: var(--muted);
+}
+
+.formError {
+  color: var(--danger, #a63e37);
+}
+
 .windowCard strong {
   display: block;
   margin-top: 7px;
@@ -223,6 +288,19 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 22px;
+  }
+
+  .planner {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .locationFields {
+    grid-template-columns: 1fr;
+  }
+
+  .locationFields legend {
+    grid-column: auto;
   }
 
   .grid {
