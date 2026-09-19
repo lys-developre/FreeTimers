@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { loadLocalState, saveLocalState } from "@/adapters/indexed-db";
 import {
   createTimeWindow,
   rankMissions,
@@ -8,6 +9,12 @@ import {
 } from "@/domain/missions";
 import { createPlan } from "@/domain/plan";
 import styles from "./page.module.css";
+
+function toDateTimeLocal(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
 
 const missions: Mission[] = [
   {
@@ -49,6 +56,9 @@ export default function Home() {
   const [longitude, setLongitude] = useState("-3.7038");
   const [saved, setSaved] = useState<string[]>([]);
   const [active, setActive] = useState<string | null>(null);
+  const [storageStatus, setStorageStatus] = useState<
+    "loading" | "ready" | "error"
+  >("loading");
   const planState = useMemo(() => {
     try {
       const plan = createPlan({
@@ -101,6 +111,51 @@ export default function Home() {
       : [],
     [budget, timeWindow],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    void loadLocalState()
+      .then((state) => {
+        if (cancelled) {
+          return;
+        }
+        if (state?.plan) {
+          setStartsAt(toDateTimeLocal(state.plan.startsAt));
+          setReturnDeadline(toDateTimeLocal(state.plan.returnDeadline));
+          setBudget(state.plan.budget.minorUnits / 100);
+          setTravelers(state.plan.travelers);
+          setTransport(state.plan.transport.mode);
+          setLatitude(String(state.plan.hub.latitude));
+          setLongitude(String(state.plan.hub.longitude));
+        }
+        setSaved(state?.savedMissionIds ?? []);
+        setActive(state?.activeMissionId ?? null);
+        setStorageStatus("ready");
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setStorageStatus("error");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (storageStatus !== "ready" || !planState.plan) {
+      return;
+    }
+    void saveLocalState({
+      schemaVersion: 1,
+      plan: planState.plan,
+      vehicles: [],
+      savedMissionIds: saved,
+      activeMissionId: active,
+    }).catch(() => {
+      setStorageStatus("error");
+    });
+  }, [active, planState.plan, saved, storageStatus]);
 
   return (
     <main className={styles.page}>
@@ -156,6 +211,13 @@ export default function Home() {
           ) : (
             <p className={styles.formHint}>La viabilidad de regreso aún no está calculada: faltan rutas reales.</p>
           )}
+          <p className={styles.storageStatus} role="status">
+            {storageStatus === "loading"
+              ? "Cargando tu configuración local…"
+              : storageStatus === "ready"
+                ? "Configuración guardada solo en este dispositivo."
+                : "No se pudo acceder al almacenamiento local."}
+          </p>
         </div>
       </section>
       <section className={styles.results}>

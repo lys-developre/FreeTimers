@@ -125,7 +125,8 @@
 }
 
 .formHint,
-.formError {
+.formError,
+.storageStatus {
   grid-column: 1 / -1;
   margin: 0;
   font-size: 12px;
@@ -138,6 +139,10 @@
 
 .formError {
   color: var(--danger, #a63e37);
+}
+
+.storageStatus {
+  color: var(--green);
 }
 
 .windowCard strong {

@@ -213,9 +213,15 @@ The first persistence slice is implemented in
 version-1 JSON envelope for the plan, vehicles, saved mission IDs and active
 mission ID. Export validates the complete state and enforces a payload limit;
 import parses untrusted JSON, rejects unsupported versions and revalidates
-nested plans and vehicles before returning data. This is a contract boundary,
-not durable storage: IndexedDB integration, migrations beyond version 1,
-atomic writes and reload restoration are still pending.
+nested plans and vehicles before returning data. The browser adapter in
+[`src/adapters/indexed-db.ts`](../../src/adapters/indexed-db.ts) stores one
+validated envelope in a versioned object store and only acknowledges a save
+after the read/write transaction completes. The current configurator restores
+and saves its valid plan locally.
+
+This is not a backup: IndexedDB integration is intentionally limited to the
+current state, migrations beyond version 1, import UI, export UI and
+multi-tab conflict handling are still pending.
 
 IndexedDB schemas are versioned. Migrations:
 

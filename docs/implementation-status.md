@@ -21,7 +21,7 @@ and tests that demonstrate the change.
 | Quality tooling | Dependency-free documentation validator and explicit `typecheck` script implemented; coverage, CI, CodeQL and E2E remain future gates | [Validation commands](./testing/README.md#quality-gates), [Validator](../scripts/validate-docs.mjs) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
 | Saved/active mission | React memory only; reload loses these choices | [Page state](../src/app/page.tsx) |
-| Local persistence, import/export | Versioned local-state envelope implemented with runtime validation, bounded JSON export/import and nested plan/vehicle validation; IndexedDB and application wiring remain unimplemented | [Envelope](../src/adapters/local-state.ts), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
+| Local persistence, import/export | Versioned local-state envelope and IndexedDB current-state adapter implemented; configurator restores and saves valid state locally. Import/export UI, migrations beyond version 1 and multi-tab conflict handling remain unimplemented | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
@@ -40,8 +40,9 @@ and tests that demonstrate the change.
   domain slices, with thirty-seven repository tests passing. Provider freshness,
   schedules, vehicle persistence, map zones and application integration remain
   unimplemented.
-- The local-state module is only a serialization/import contract. It does not
-  write to IndexedDB, preserve state across reloads, or provide backup.
+- The local-state module and IndexedDB adapter preserve the current valid
+  configurator state across reloads. They do not provide backup, import/export
+  controls, migrations beyond version 1 or multi-tab conflict resolution.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
 - The security baseline utilities are tested but are not a deployment boundary
@@ -59,8 +60,8 @@ one prototype path works.
 
 ## Resumen en español
 
-El prototipo contiene tres misiones sintéticas, filtros básicos y estado en
-memoria. Existe un contrato validado de exportación/importación local, pero aún
-no hay IndexedDB, mapa, GPS, PWA offline ni proveedores.
+El prototipo contiene tres misiones sintéticas, filtros básicos y persistencia
+local del estado válido del configurador mediante IndexedDB. Aún no existen
+importación/exportación visible, mapa, GPS, PWA offline ni proveedores.
 La etiqueta actual de seguridad no calcula la vuelta y no debe usarse para
 decidir viajes reales. Este registro distingue código existente de objetivos.

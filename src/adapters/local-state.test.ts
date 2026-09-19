@@ -6,6 +6,7 @@ import {
   importLocalState,
   type LocalState,
 } from "./local-state";
+import { loadLocalState, saveLocalState } from "./indexed-db";
 
 const plan: Plan = createPlan({
   startsAt: "2026-09-19T10:00:00Z",
@@ -58,5 +59,14 @@ describe("local state envelope", () => {
 
   it("rejects oversized exports before storage", () => {
     expect(() => exportLocalState(state, { maxBytes: 10 })).toThrow("limit");
+  });
+
+  it("reports unavailable browser storage instead of pretending to save", async () => {
+    await expect(loadLocalState({ indexedDB: undefined })).rejects.toThrow(
+      "IndexedDB is unavailable",
+    );
+    await expect(
+      saveLocalState(state, { indexedDB: undefined }),
+    ).rejects.toThrow("IndexedDB is unavailable");
   });
 });
