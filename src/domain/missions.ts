@@ -13,6 +13,10 @@ export type Mission = {
   durationMinutes: number;
   distanceKm: number;
   estimatedCost: number;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
   tags: string[];
   kind?: MissionKind;
 };

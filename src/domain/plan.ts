@@ -38,8 +38,39 @@ function parseInstant(value: string, field: string): number {
   if (!Number.isFinite(timestamp)) {
     throw new RangeError(`${field} must be a valid timestamp`);
   }
-
   return timestamp;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function record(value: unknown, field: string): Record<string, unknown> {
+  if (!isRecord(value)) {
+    throw new TypeError(`${field} must be an object`);
+  }
+  return value;
+}
+
+function stringValue(value: unknown, field: string): string {
+  if (typeof value !== "string") {
+    throw new TypeError(`${field} must be a string`);
+  }
+  return value;
+}
+
+function numberValue(value: unknown, field: string): number {
+  if (typeof value !== "number") {
+    throw new TypeError(`${field} must be a number`);
+  }
+  return value;
+}
+
+function locationSource(value: unknown, field: string): LocationSource {
+  if (value !== "gps" && value !== "manual" && value !== "geocoded") {
+    throw new RangeError(`${field} is unsupported`);
+  }
+  return value;
 }
 
 function assertNonNegative(value: number, field: string): void {
@@ -49,6 +80,13 @@ function assertNonNegative(value: number, field: string): void {
 }
 
 function validateLocation(location: PlanLocation, field: string): void {
+  if (
+    location.source !== "gps" &&
+    location.source !== "manual" &&
+    location.source !== "geocoded"
+  ) {
+    throw new RangeError(`${field}.source is unsupported`);
+  }
   if (
     !Number.isFinite(location.latitude) ||
     location.latitude < -90 ||
@@ -84,6 +122,14 @@ function validateTimeZone(timeZone: string): void {
 }
 
 function validateTransport(transport: Transport): void {
+  if (
+    transport.mode !== "walking" &&
+    transport.mode !== "bicycle" &&
+    transport.mode !== "car" &&
+    transport.mode !== "motorcycle"
+  ) {
+    throw new RangeError("transport.mode is unsupported");
+  }
   if (
     (transport.mode === "car" || transport.mode === "motorcycle") &&
     (!transport.vehicleId || transport.vehicleId.trim().length === 0)
@@ -129,4 +175,73 @@ export function createPlan(input: PlanInput): Plan {
   validateMoney(input.budget);
 
   return input;
+}
+
+function parseLocation(value: unknown, field: string): PlanLocation {
+  const location = record(value, field);
+  return {
+    latitude: numberValue(location.latitude, `${field}.latitude`),
+    longitude: numberValue(location.longitude, `${field}.longitude`),
+    source: locationSource(location.source, `${field}.source`),
+    ...(location.label === undefined
+      ? {}
+      : { label: stringValue(location.label, `${field}.label`) }),
+    ...(location.accuracyMeters === undefined
+      ? {}
+      : {
+          accuracyMeters: numberValue(
+            location.accuracyMeters,
+            `${field}.accuracyMeters`,
+          ),
+        }),
+    ...(location.observedAt === undefined
+      ? {}
+      : {
+          observedAt: stringValue(location.observedAt, `${field}.observedAt`),
+        }),
+  };
+}
+
+function parseTransport(value: unknown): Transport {
+  const transport = record(value, "transport");
+  const mode = stringValue(transport.mode, "transport.mode");
+  if (mode === "walking") {
+    return { mode };
+  }
+  if (mode === "bicycle" || mode === "car" || mode === "motorcycle") {
+    return {
+      mode,
+      ...(transport.vehicleId === undefined
+        ? {}
+        : {
+            vehicleId: stringValue(
+              transport.vehicleId,
+              "transport.vehicleId",
+            ),
+          }),
+    };
+  }
+  throw new RangeError("transport.mode is unsupported");
+}
+
+export function parsePlan(value: unknown): Plan {
+  const plan = record(value, "plan");
+  const budget = record(plan.budget, "budget");
+  return createPlan({
+    startsAt: stringValue(plan.startsAt, "startsAt"),
+    returnDeadline: stringValue(plan.returnDeadline, "returnDeadline"),
+    timeZone: stringValue(plan.timeZone, "timeZone"),
+    returnMarginMinutes: numberValue(
+      plan.returnMarginMinutes,
+      "returnMarginMinutes",
+    ),
+    origin: parseLocation(plan.origin, "origin"),
+    hub: parseLocation(plan.hub, "hub"),
+    transport: parseTransport(plan.transport),
+    travelers: numberValue(plan.travelers, "travelers"),
+    budget: {
+      minorUnits: numberValue(budget.minorUnits, "budget.minorUnits"),
+      currency: stringValue(budget.currency, "budget.currency"),
+    },
+  });
 }

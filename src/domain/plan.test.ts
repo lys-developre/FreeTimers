@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createPlan, type PlanInput } from "./plan";
+import { createPlan, parsePlan, type PlanInput } from "./plan";
 
 const validPlan: PlanInput = {
   startsAt: "2026-09-19T10:00:00Z",
@@ -97,5 +97,21 @@ describe("createPlan", () => {
       mode: "bicycle",
       vehicleId: "synthetic-bicycle",
     });
+  });
+
+  it("parses an unknown plan and rejects unsupported runtime enums", () => {
+    expect(parsePlan(validPlan)).toEqual(validPlan);
+    expect(() =>
+      parsePlan({
+        ...validPlan,
+        origin: { ...validPlan.origin, source: "guessed" },
+      }),
+    ).toThrow("origin.source");
+    expect(() =>
+      parsePlan({
+        ...validPlan,
+        transport: { mode: "teleport" },
+      }),
+    ).toThrow("transport.mode");
   });
 });

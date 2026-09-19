@@ -13,6 +13,7 @@ const rally: Mission = {
   durationMinutes: 480,
   distanceKm: 90,
   estimatedCost: 55,
+  location: { latitude: 40.01, longitude: -3.01 },
   tags: ["motor", "carretera"],
 };
 
