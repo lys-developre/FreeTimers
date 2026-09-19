@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FreeTimers
 
-## Getting Started
+FreeTimers is a personal, local-first, mobile-first application for finding
+experiences that fit the time you actually have.
 
-First, run the development server:
+> What is worth experiencing with the time I have?
+
+The project combines deterministic reachability and return-time calculations,
+activity discovery, living Secondary Missions, and optional AI explanations.
+It is not a travel marketplace or social network.
+
+## Status
+
+FreeTimers is an early prototype. The current interface uses synthetic demo
+missions. Live maps, routing, activities, persistence, and LLM providers are
+planned and documented but not yet connected.
+
+## Principles
+
+- Return feasibility is calculated deterministically.
+- The LLM never overrides safety-critical results.
+- Unknown and stale data remain explicit.
+- Personal data stays local whenever possible.
+- Demo mode works without credentials.
+- External providers are replaceable adapters.
+- Mobile UX and accessibility are first-class requirements.
+
+## Quick start
+
+Requirements:
+
+- Node.js 20.9 or newer.
+- npm.
 
 ```bash
+git clone <repository-url>
+cd FreeTimers
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-## Learn More
+## Configuration
 
-To learn more about Next.js, take a look at the following resources:
+No credentials are required for demo mode.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+macOS/Linux:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cp .env.example .env.local
+```
 
-## Deploy on Vercel
+Windows PowerShell:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```powershell
+Copy-Item .env.example .env.local
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Fill only the optional providers you enable. Never commit `.env.local`. Values
+prefixed with `NEXT_PUBLIC_` are visible in the browser and must not contain
+secrets.
+
+## Documentation
+
+Start at [`docs/README.md`](./docs/README.md).
+
+- [Product](./docs/product/README.md)
+- [Design and UX](./docs/design/README.md)
+- [Architecture](./docs/architecture/README.md)
+- [Security and privacy](./docs/security/README.md)
+- [Data contracts](./docs/data/README.md)
+- [Engineering standards](./docs/engineering/README.md)
+- [Testing](./docs/testing/README.md)
+- [Operations](./docs/operations/README.md)
+- [Protocols and Definition of Done](./docs/protocols/README.md)
+- [External requirements](./REQUIREMENTS-EXTERNAL.md)
+
+## Contributing and security
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and
+[`SECURITY.md`](./SECURITY.md). Never publish credentials, precise personal
+locations, calendars, or exports in issues.
+
+## License
+
+[MIT](./LICENSE)
+
+## Resumen en español
+
+FreeTimers es una herramienta personal para descubrir experiencias compatibles
+con tu tiempo, presupuesto, movilidad y margen de regreso. El proyecto está en
+fase inicial y usa datos sintéticos. Funciona en modo demo sin credenciales y
+prioriza privacidad, seguridad, accesibilidad y arquitectura mantenible.

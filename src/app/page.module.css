@@ -1,150 +1,235 @@
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  min-height: 100vh;
+  padding: 28px 6vw 72px;
 }
 
-.main {
+.nav,
+.sectionHeading,
+.windowCard,
+.missionTopline,
+.meta,
+.actions {
   display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+}
+
+.nav {
   justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
-}
-
-.intro {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
+  color: var(--green);
   font-size: 14px;
+  letter-spacing: 0.04em;
 }
 
-.ctas a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
+.nav strong {
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+.nav span {
+  color: var(--muted);
+}
+
+.hero {
+  max-width: 880px;
+  padding: 13vh 0 80px;
+}
+
+.eyebrow,
+.label {
+  color: var(--orange);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.hero h1 {
+  max-width: 790px;
+  margin-top: 18px;
+  font-size: clamp(48px, 8vw, 94px);
   font-weight: 500;
+  letter-spacing: -0.08em;
+  line-height: 0.92;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
+.lead {
+  max-width: 470px;
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.privateNote {
+  margin-top: 16px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.windowCard {
+  justify-content: space-between;
+  max-width: 620px;
+  margin-top: 44px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.6);
+}
+
+.windowCard strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 16px;
+}
+
+.windowCard label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.windowCard input {
+  width: 62px;
+  margin: 0 4px 0 10px;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 700;
+  outline: none;
+}
+
+.results {
+  max-width: 1180px;
+}
+
+.sectionHeading {
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+
+.sectionHeading h2 {
+  margin-top: 8px;
+  font-size: 27px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.sectionHeading > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.mission {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+
+.missionTopline {
+  justify-content: space-between;
+}
+
+.badge {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.score {
+  color: var(--orange);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mission h3 {
+  margin-top: 54px;
+  font-size: 29px;
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.mission > p {
+  min-height: 50px;
+  margin-top: 15px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.meta {
+  gap: 10px;
+  margin-top: 18px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.meta span + span::before {
+  margin-right: 10px;
+  color: var(--line);
+  content: "·";
+}
+
+.mission ul {
+  margin: 25px 0 25px 17px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.actions {
   gap: 8px;
+  margin-top: auto;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.actions button {
+  cursor: pointer;
+  padding: 10px 12px;
+  border: 1px solid var(--green);
+  font-size: 12px;
+  font-weight: 700;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+.primary {
+  background: var(--green);
+  color: white;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
+.secondary {
+  background: transparent;
+  color: var(--green);
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
+@media (max-width: 800px) {
   .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+    padding: 22px 20px 48px;
   }
-}
 
-.code {
-  font-family: var(--font-geist-mono);
-  font-size: 0.9em;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  padding: 0.1em 0.4em;
-  border-radius: 6px;
+  .hero {
+    padding-top: 12vh;
+  }
+
+  .windowCard {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mission {
+    min-height: auto;
+  }
 }

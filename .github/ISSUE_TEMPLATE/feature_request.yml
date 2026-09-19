@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a focused product or engineering improvement
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Which decision or workflow is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe behavior rather than a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Plan Now
+        - Adventure Radar
+        - Secondary Missions
+        - Memory
+        - Data provider
+        - Security or privacy
+        - Developer experience
+    validations:
+      required: true
