@@ -13,6 +13,7 @@ and tests that demonstrate the change.
 | --- | --- | --- |
 | Prototype home | Three synthetic missions, fixed window and preferences, editable budget | [Page](../src/app/page.tsx) |
 | Filtering and ranking | Compares declared duration/cost and matching tags; not round-trip feasibility | [Domain](../src/domain/missions.ts) |
+| Deterministic return feasibility | Implemented domain slice: fresh route evidence, asymmetric legs, margin classification, active evaluation time, and invalid-input rejection | [Feasibility domain](../src/domain/feasibility.ts), [Tests](../src/domain/feasibility.test.ts) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
 | Saved/active mission | React memory only; reload loses these choices | [Page state](../src/app/page.tsx) |
 | Local persistence, import/export | Not implemented | [Data target](./data/README.md#persistence-and-migrations) |
@@ -21,7 +22,7 @@ and tests that demonstrate the change.
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
 | Validation commands | Test, lint, build scripts; TypeScript CLI | [Manifest](../package.json) |
 | CI, secret scanning, CodeQL, coverage and E2E gates | Not configured in repository workflows | [Testing target](./testing/README.md#quality-gates) |
-| Public setup and environment | Example has comments only; no configurable live provider | [Environment example](../.env.example) |
+| Public setup and environment | Example provides placeholders for optional providers and local configuration | [Environment example](../.env.example) |
 | Design system | Documented target, prototype styles have not been migrated | [Tokens](./design/design-system.md), [CSS](../src/app/globals.css) |
 
 ## Known gaps that must not be mistaken for guarantees
@@ -30,8 +31,10 @@ and tests that demonstrate the change.
   routing. Its score is a heuristic, not a probability of enjoyment or safety.
 - Displayed weekday text and the fixed timestamp range are not consistently
   derived from the same source.
-- Runtime validation, freshness and the four feasibility states are not in the
-  current domain implementation. Four passing tests cannot certify them.
+- Runtime validation and the four feasibility states now exist for the focused
+  domain slice, with eleven repository tests passing. Provider freshness,
+  schedules, budgets, vehicle constraints, persistence, map zones and
+  application integration remain unimplemented.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
 

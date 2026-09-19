@@ -5,9 +5,10 @@
 
 [Documentation index](../README.md) · [Feasibility contract](./feasibility.md)
 
-The records below are target sketches, not exported types or runtime schemas.
-Implemented types remain in [the prototype domain](../../src/domain/missions.ts)
-until migrated with tests.
+The records below are canonical contracts, not a complete runtime schema.
+The first implemented feasibility slice is in
+[the domain module](../../src/domain/feasibility.ts); broader records remain
+targets until migrated with tests.
 
 ## Principles
 
@@ -139,7 +140,8 @@ type FeasibilityStatus = "safe" | "tight" | "unviable" | "unknown";
 The result contains outbound time, return time, wait, activity duration, margin,
 evaluated time, route freshness, and reasons. Missing required inputs force
 `unknown`.
-Use the [canonical classification and acceptance cases](./feasibility.md).
+Use the [canonical classification and acceptance cases](./feasibility.md);
+the current implementation covers only the numeric route-evidence slice.
 Do not infer safety from recommendation score or availability of coordinates.
 
 ## Validation
