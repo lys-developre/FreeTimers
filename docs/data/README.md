@@ -220,8 +220,9 @@ after the read/write transaction completes. The current configurator restores
 and saves its valid plan locally.
 
 This is not a backup: IndexedDB integration is intentionally limited to the
-current state, migrations beyond version 1, import UI, export UI and
-multi-tab conflict handling are still pending.
+current state, migrations beyond version 1 and multi-tab conflict handling are
+still pending. The configurator exposes JSON import/export for user-controlled
+recovery; imported files are validated before they can replace local state.
 
 IndexedDB schemas are versioned. Migrations:
 

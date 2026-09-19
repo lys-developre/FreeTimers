@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadLocalState, saveLocalState } from "@/adapters/indexed-db";
 import {
+  exportLocalState,
+  importLocalState,
+  type LocalState,
+} from "@/adapters/local-state";
+import {
   createTimeWindow,
   rankMissions,
   type Mission,
@@ -59,6 +64,7 @@ export default function Home() {
   const [storageStatus, setStorageStatus] = useState<
     "loading" | "ready" | "error"
   >("loading");
+  const [fileInputKey, setFileInputKey] = useState(0);
   const planState = useMemo(() => {
     try {
       const plan = createPlan({
@@ -157,6 +163,59 @@ export default function Home() {
     });
   }, [active, planState.plan, saved, storageStatus]);
 
+  function applyStoredPlan(state: LocalState) {
+    if (state.plan) {
+      setStartsAt(toDateTimeLocal(state.plan.startsAt));
+      setReturnDeadline(toDateTimeLocal(state.plan.returnDeadline));
+      setBudget(state.plan.budget.minorUnits / 100);
+      setTravelers(state.plan.travelers);
+      setTransport(state.plan.transport.mode);
+      setLatitude(String(state.plan.hub.latitude));
+      setLongitude(String(state.plan.hub.longitude));
+    }
+    setSaved(state.savedMissionIds);
+    setActive(state.activeMissionId);
+  }
+
+  function handleExport() {
+    if (!planState.plan) {
+      setStorageStatus("error");
+      return;
+    }
+    const serialized = exportLocalState({
+      schemaVersion: 1,
+      plan: planState.plan,
+      vehicles: [],
+      savedMissionIds: saved,
+      activeMissionId: active,
+    });
+    const url = URL.createObjectURL(
+      new Blob([serialized], { type: "application/json" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "freetimers-plan.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    setStorageStatus("ready");
+  }
+
+  async function handleImport(file: File | undefined) {
+    if (!file) {
+      return;
+    }
+    try {
+      const serialized = await file.text();
+      const state = importLocalState(serialized);
+      applyStoredPlan(state);
+      setStorageStatus("ready");
+    } catch {
+      setStorageStatus("error");
+    } finally {
+      setFileInputKey((key) => key + 1);
+    }
+  }
+
   return (
     <main className={styles.page}>
       <nav className={styles.nav}>
@@ -218,6 +277,26 @@ export default function Home() {
                 ? "Configuración guardada solo en este dispositivo."
                 : "No se pudo acceder al almacenamiento local."}
           </p>
+          <div className={styles.storageActions}>
+            <button
+              className={styles.secondary}
+              type="button"
+              onClick={handleExport}
+              disabled={!planState.plan}
+            >
+              Exportar configuración
+            </button>
+            <label className={styles.secondary}>
+              Importar configuración
+              <input
+                key={fileInputKey}
+                className={styles.fileInput}
+                type="file"
+                accept="application/json,.json"
+                onChange={(event) => void handleImport(event.target.files?.[0])}
+              />
+            </label>
+          </div>
         </div>
       </section>
       <section className={styles.results}>

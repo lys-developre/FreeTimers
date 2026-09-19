@@ -145,6 +145,37 @@
   color: var(--green);
 }
 
+.storageActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.storageActions button,
+.storageActions label {
+  cursor: pointer;
+  padding: 10px 12px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.storageActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .windowCard strong {
   display: block;
   margin-top: 7px;

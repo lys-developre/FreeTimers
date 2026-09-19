@@ -19,8 +19,9 @@ Implemented inputs:
 - transport mode;
 - manual latitude and longitude hub.
 
-The current screen uses synthetic vehicle IDs and does not request GPS,
-persist data, render a map or call providers.
+The current screen uses synthetic vehicle IDs, persists the valid configuration
+locally, and offers JSON export/import for recovery. It does not request GPS,
+render a map or call providers.
 
 ## Trust and states
 
@@ -36,19 +37,23 @@ persist data, render a map or call providers.
 - Mobile uses a single-column control surface with native date/time inputs.
 - Wider screens use a two-column configuration grid and a full-width hub field.
 - Every field has a visible label and a stable `id`/`htmlFor` association.
-- The configuration is currently in memory and is lost on reload.
+- Valid configuration is restored from IndexedDB after reload. JSON export and
+  import provide a user-controlled recovery path; invalid imports are rejected
+  without replacing the current state.
 
 ## Acceptance evidence
 
 - Browser check at `http://localhost:3000/` confirmed all controls render.
 - Synthetic latitude `91` produced `origin.latitude is invalid`.
 - Browser console had no errors or warnings from the screen.
-- Automated UI, accessibility, persistence and route-provider checks remain
-  pending because those capabilities are not implemented yet.
+- Automated UI, accessibility and route-provider checks remain pending. Browser
+  verification confirmed IndexedDB restoration; import/export still needs
+  dedicated end-to-end coverage.
 
 ## Resumen en español
 
 Plan Ahora configura hora de salida, límite de regreso, presupuesto, personas,
-transporte y hub manual. La pantalla valida los datos y explica que todavía no
-existe cálculo real de regreso. No pide GPS, no persiste la configuración y no
-presenta una recomendación como segura.
+transporte y hub manual. La pantalla valida los datos, conserva la configuración
+válida en el dispositivo y ofrece exportación/importación JSON. Todavía no
+existe cálculo real de regreso, no pide GPS y no presenta una recomendación como
+segura.
