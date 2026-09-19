@@ -1,15 +1,19 @@
 import { validatePayloadSize } from "../config/security";
-import { createPlan, type Plan } from "../domain/plan";
+import {
+  parseActiveMission,
+  type ActiveMission,
+} from "../domain/active-mission";
+import { parsePlan, type Plan } from "../domain/plan";
 import { createVehicle, type Vehicle } from "../domain/vehicles";
 
-export const LOCAL_STATE_SCHEMA_VERSION = 1;
+export const LOCAL_STATE_SCHEMA_VERSION = 2;
 
 export type LocalState = {
   schemaVersion: typeof LOCAL_STATE_SCHEMA_VERSION;
   plan: Plan | null;
   vehicles: Vehicle[];
   savedMissionIds: string[];
-  activeMissionId: string | null;
+  activeMission: ActiveMission | null;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -23,21 +27,45 @@ function requiredString(value: unknown, field: string): string {
   return value;
 }
 
+function validateVehicleReference(plan: Plan, vehicles: Vehicle[]): void {
+  if (
+    plan.transport.mode === "walking" ||
+    plan.transport.vehicleId === undefined
+  ) {
+    return;
+  }
+  const { mode, vehicleId } = plan.transport;
+  const selectedVehicle = vehicles.find((vehicle) => vehicle.id === vehicleId);
+  if (!selectedVehicle || selectedVehicle.mode !== mode) {
+    throw new RangeError(
+      "selected vehicle must exist and match the transport mode",
+    );
+  }
+}
+
 function validateState(value: unknown): LocalState {
   if (!isRecord(value)) {
     throw new TypeError("local state must be an object");
   }
-  if (value.schemaVersion !== LOCAL_STATE_SCHEMA_VERSION) {
+  let state: Record<string, unknown> = value;
+  if (state.schemaVersion === 1) {
+    state = {
+      ...state,
+      schemaVersion: LOCAL_STATE_SCHEMA_VERSION,
+      activeMission: null,
+    };
+  }
+  if (state.schemaVersion !== LOCAL_STATE_SCHEMA_VERSION) {
     throw new RangeError("schemaVersion is unsupported");
   }
-  if (value.plan !== null && !isRecord(value.plan)) {
+  if (state.plan !== null && !isRecord(state.plan)) {
     throw new TypeError("plan must be an object or null");
   }
-  const plan = value.plan === null ? null : createPlan(value.plan as Plan);
-  if (!Array.isArray(value.vehicles)) {
+  const plan = state.plan === null ? null : parsePlan(state.plan);
+  if (!Array.isArray(state.vehicles)) {
     throw new TypeError("vehicles must be an array");
   }
-  const vehicles = value.vehicles.map((vehicle, index) => {
+  const vehicles = state.vehicles.map((vehicle, index) => {
     if (!isRecord(vehicle)) {
       throw new TypeError(`vehicles[${index}] must be an object`);
     }
@@ -47,38 +75,32 @@ function validateState(value: unknown): LocalState {
   if (vehicleIds.size !== vehicles.length) {
     throw new RangeError("vehicle ids must be unique");
   }
-  if (
-    plan &&
-    plan.transport.mode !== "walking" &&
-    plan.transport.vehicleId !== undefined
-  ) {
-    const { mode, vehicleId } = plan.transport;
-    const selectedVehicle = vehicles.find(
-      (vehicle) => vehicle.id === vehicleId,
-    );
-    if (!selectedVehicle || selectedVehicle.mode !== mode) {
-      throw new RangeError(
-        "selected vehicle must exist and match the transport mode",
-      );
-    }
+  if (plan) {
+    validateVehicleReference(plan, vehicles);
   }
-  if (!Array.isArray(value.savedMissionIds)) {
+  if (!Array.isArray(state.savedMissionIds)) {
     throw new TypeError("savedMissionIds must be an array");
   }
-  const savedMissionIds = value.savedMissionIds.map((id, index) =>
+  const savedMissionIds = state.savedMissionIds.map((id, index) =>
     requiredString(id, `savedMissionIds[${index}]`),
   );
-  const activeMissionId =
-    value.activeMissionId === null
+  if (state.activeMission !== null && !isRecord(state.activeMission)) {
+    throw new TypeError("activeMission must be an object or null");
+  }
+  const activeMission =
+    state.activeMission === null
       ? null
-      : requiredString(value.activeMissionId, "activeMissionId");
+      : parseActiveMission(state.activeMission);
+  if (activeMission) {
+    validateVehicleReference(activeMission.plan, vehicles);
+  }
 
   return {
     schemaVersion: LOCAL_STATE_SCHEMA_VERSION,
     plan,
     vehicles,
     savedMissionIds,
-    activeMissionId,
+    activeMission,
   };
 }
 
