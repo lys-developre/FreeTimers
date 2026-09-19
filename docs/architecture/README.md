@@ -177,6 +177,7 @@ Provider errors are typed and never converted into empty success results.
 
 The LLM may:
 
+- Propose activities or itinerary adjustments as unvalidated candidates.
 - Explain why an activity fits.
 - Compare already evaluated options.
 - Summarize uncertainty.
@@ -189,6 +190,12 @@ The LLM may not:
 - Override unknown or unviable states.
 - Receive secrets, raw calendar content, or unnecessary precise location.
 - Execute provider URLs supplied by external content.
+
+Every proposed activity or adjustment passes through deterministic validation
+with fresh provider evidence before it can be shown as viable or offered for
+confirmation. The model never inserts a proposal into the active plan directly.
+Presentation profiles may transform validated structured facts into regional
+or humorous language, but severity, values and required actions are immutable.
 
 LLM output is untrusted external data and must be schema-validated and rendered
 as text.

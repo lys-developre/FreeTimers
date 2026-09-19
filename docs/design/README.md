@@ -27,6 +27,7 @@ information always outrank decoration.
 | [Design system](./design-system.md) | Tokens, typography, color, spacing, shape, and component rules |
 | [Responsive behavior](./responsive-behavior.md) | How the experience changes across device capabilities |
 | [Interaction states](./interaction-states.md) | Loading, error, success, active mission, and microinteraction behavior |
+| [Voice, tone and Bardeo](./voice-and-tone.md) | Severity-aware communication, regional personality, strong-language opt-in and AI permissions |
 | [Accessibility](./accessibility.md) | Accessibility requirements and verification checklist |
 | [Screen specification template](./screen-spec-template.md) | Required planning artifact before implementing a significant screen |
 | [Plan Now configurator](./plan-now.md) | Current implementation and evidence for the first planning screen |

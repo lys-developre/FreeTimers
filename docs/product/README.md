@@ -79,7 +79,8 @@ merely to preserve the original plan.
 
 - Time is the first filter.
 - Safety is deterministic and conservative.
-- The LLM explains; it does not calculate feasibility.
+- The LLM proposes and explains; deterministic code validates and decides
+  feasibility.
 - Fewer meaningful options are better than a large feed.
 - “Not now” is not the same as “not interested”.
 - Saved missions retain conditions and can resurface later.
