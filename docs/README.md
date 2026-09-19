@@ -81,6 +81,10 @@ not binding decisions.
   metadata and license review; they are not raw diagnostic captures.
 - Every document under `docs/` has status, last-review date and a Spanish
   summary. A changed decision also updates its summary and inbound references.
+- Deterministic domain contracts use `**Deterministic contract:** Yes` and
+  contain complete English and Spanish versions in the same file. Matching
+  `contract-section` markers are validated by `npm run validate:docs`; a short
+  Spanish summary is not sufficient for these contracts.
 - The change author maintains affected pages; the maintainer approves decisions
   and exceptions. Review relevant pages on behavior changes and before releases,
   not through automatic date updates.

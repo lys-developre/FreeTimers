@@ -58,6 +58,32 @@ for (const filePath of markdownFiles) {
     if (!pattern.test(content)) {
       reportError(`${relativePath}: missing ${description}`);
     }
+
+    if (/^\*\*Deterministic contract:\*\* Yes$/m.test(content)) {
+      const englishStart = content.indexOf("## English contract");
+      const spanishStart = content.indexOf("## Contrato completo en español");
+      if (englishStart === -1 || spanishStart === -1 || englishStart > spanishStart) {
+        reportError(
+          `${relativePath}: deterministic contract needs complete English and Spanish sections`,
+        );
+      } else {
+        const markerPattern = /<!-- contract-section:([a-z0-9-]+) -->/g;
+        const englishMarkers = [
+          ...content.slice(englishStart, spanishStart).matchAll(markerPattern),
+        ].map((match) => match[1]);
+        const spanishMarkers = [
+          ...content.slice(spanishStart).matchAll(markerPattern),
+        ].map((match) => match[1]);
+        if (
+          englishMarkers.length === 0 ||
+          englishMarkers.join("|") !== spanishMarkers.join("|")
+        ) {
+          reportError(
+            `${relativePath}: deterministic English/Spanish contract sections are not structurally aligned`,
+          );
+        }
+      }
+    }
   }
 
   content.split("\n").forEach((line, index) => {
