@@ -11,7 +11,7 @@ and tests that demonstrate the change.
 
 | Capability | Current state | Evidence or target |
 | --- | --- | --- |
-| Prototype home | Three synthetic missions, fixed window and preferences, editable budget | [Page](../src/app/page.tsx) |
+| Prototype home | Three synthetic missions, editable planning inputs and a dedicated active-mission surface | [Page](../src/app/page.tsx), [Active mission view](../src/app/active-mission-view.tsx) |
 | Filtering and ranking | Compares declared duration/cost and matching tags; not round-trip feasibility | [Domain](../src/domain/missions.ts) |
 | Deterministic return feasibility | Implemented domain slice: fresh route evidence, asymmetric legs, margin classification, active evaluation time, and invalid-input rejection | [Feasibility domain](../src/domain/feasibility.ts), [Tests](../src/domain/feasibility.test.ts) |
 | Plan input validation | Implemented domain slice for timestamps, timezone, margin, hub/origin coordinates, transport, travelers and money | [Plan domain](../src/domain/plan.ts), [Tests](../src/domain/plan.test.ts) |
@@ -19,13 +19,13 @@ and tests that demonstrate the change.
 | Mobile plan configurator | Implemented persisted controls for time window, budget, travelers, transport, selectable vehicle profiles and manual hub; no map or GPS | [Screen](../src/app/page.tsx), [Specification](./design/plan-now.md) |
 | Security baseline utilities | Implemented reusable environment, provider URL, payload-size and diagnostic redaction controls; not yet wired to external adapters | [Security utilities](../src/config/security.ts), [Tests](../src/config/security.test.ts) |
 | Quality tooling | Dependency-free documentation validator and explicit `typecheck` script implemented; coverage, CI, CodeQL and E2E remain future gates | [Validation commands](./testing/README.md#quality-gates), [Validator](../scripts/validate-docs.mjs) |
-| Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
-| Saved/active mission | Persisted locally with the current configurator state; lifecycle remains a prototype toggle | [Page state](../src/app/page.tsx), [Local envelope](../src/adapters/local-state.ts) |
-| Adaptive active mission | Multi-point refresh, confirmed visit progress and deterministic shortening are specified but not implemented | [Product behavior](./product/README.md), [Feasibility refresh](./data/feasibility.md#active-mission-refresh) |
-| Active mission support | Checklist, configurable GPS progress, actual-cost journal, learned consumption/delay profiles, multimodal voice and offline packages are specified but not implemented | [Active mission specification](./design/active-mission.md) |
+| Automated behavior tests | Fifty-nine tests cover domain, application, storage and security behavior with synthetic fixtures | [Tests](../src/domain/active-mission.test.ts), [Persistence tests](../src/adapters/local-state.test.ts) |
+| Saved/active mission | A validated plan snapshot, revision, visits, checklist and lifecycle are persisted locally; schema version 1 migrates to version 2 without inventing legacy progress | [Page state](../src/app/page.tsx), [Local envelope](../src/adapters/local-state.ts), [Tests](../src/adapters/local-state.test.ts) |
+| Adaptive active mission | Implemented state machine supports preparation, confirmed arrival/departure, skip, return and completion plus revision-bound itinerary proposals; live route recalculation and automatic proposals remain pending | [Domain](../src/domain/active-mission.ts), [Tests](../src/domain/active-mission.test.ts), [Feasibility refresh](./data/feasibility.md#active-mission-refresh) |
+| Active mission support | Dedicated mobile-first surface implements fixed deadline/margin visibility, checklist readiness and manual visit progress; GPS, actual-cost journal, learned profiles, voice and offline packages remain specified targets | [Screen](../src/app/active-mission-view.tsx), [Active mission specification](./design/active-mission.md) |
 | Mission media | Images and videos are explicitly deferred; no local reference, copy or cloud synchronization is implemented | [Active mission scope](./design/active-mission.md#permission-and-privacy-behavior) |
 | Voice and AI permissions | Default severity-aware voice, optional regional Bardeo profile and denied-by-default modular AI permissions are specified but not implemented | [Voice and tone](./design/voice-and-tone.md), [LLM boundary](./architecture/README.md#llm-boundary) |
-| Local persistence, import/export | Versioned local-state envelope, IndexedDB current-state adapter and configurator JSON import/export implemented; migrations beyond version 1 and multi-tab conflict handling remain unimplemented | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
+| Local persistence, import/export | Schema version 2 persists the active-mission record and validates nested plan/vehicle references; version 1 migration, IndexedDB and JSON import/export are implemented; multi-tab conflict handling remains pending | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
@@ -41,15 +41,16 @@ and tests that demonstrate the change.
 - Displayed weekday text and the fixed timestamp range are not consistently
   derived from the same source.
 - Runtime validation and the four feasibility states now exist for the focused
-  domain slices, with forty-nine repository tests passing. Provider freshness,
+  domain slices, with fifty-nine repository tests passing. Provider freshness,
   schedules, route-based vehicle costing, map zones and application integration
   remain unimplemented.
 - The local-state module and IndexedDB adapter preserve the current valid
-  configurator state across reloads. JSON import/export is available as a
-  recovery path; it is not an encrypted backup and does not solve migrations
-  beyond version 1 or multi-tab conflict resolution.
-- The active-mission control does not yet track visit progress, watch current
-  position, reroute remaining points or recommend an early return.
+  configurator and active mission across reloads. JSON import/export is
+  available as a recovery path; it is not an encrypted backup and does not
+  solve future migrations or multi-tab conflict resolution.
+- The active-mission mode tracks only explicit visit progress. It does not yet
+  watch current position, request real routes, reroute remaining points or
+  recommend an early return.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
 - The security baseline utilities are tested but are not a deployment boundary
@@ -68,8 +69,8 @@ one prototype path works.
 ## Resumen en español
 
 El prototipo contiene tres misiones sintéticas, filtros básicos, una biblioteca
-local de vehículos, persistencia mediante IndexedDB y
-exportación/importación JSON validada. Aún no existen mapa, GPS, PWA offline ni
-proveedores.
+local de vehículos, una pantalla de misión activa con checklist y progreso
+confirmado, persistencia mediante IndexedDB y exportación/importación JSON
+validada. Aún no existen mapa, GPS, PWA offline ni proveedores.
 La etiqueta actual de seguridad no calcula la vuelta y no debe usarse para
 decidir viajes reales. Este registro distingue código existente de objetivos.

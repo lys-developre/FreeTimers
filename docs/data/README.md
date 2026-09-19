@@ -3,7 +3,10 @@
 **Status:** Decision  
 **Last reviewed:** 2026-09-19
 
-[Documentation index](../README.md) · [Feasibility contract](./feasibility.md)
+[Documentation index](../README.md) · [Plan](./plan.md) ·
+[Vehicles](./vehicles.md) · [Recommendations](./recommendations.md) ·
+[Active mission](./active-mission.md) ·
+[Feasibility contract](./feasibility.md)
 
 The records below are canonical contracts, not a complete runtime schema.
 The first implemented plan and feasibility slices are in
@@ -132,6 +135,22 @@ Optional:
 - Accessibility information.
 - Weather sensitivity.
 
+### External place evidence
+
+Google Places API (New) is a candidate provider, not an active connector.
+When explicitly configured, fields such as place identity, categories, opening
+hours, rating, rating count, accessibility attributes and the limited review
+set returned by the API may support recommendation context. Ratings and review
+text are soft, user-generated signals: they may suggest queues, access
+difficulty or realistic visit duration, but cannot override official schedules,
+fresh route evidence or deterministic return feasibility.
+
+Any future adapter must request only required fields, preserve Google
+attribution, record fetch/expiry times, validate every response and follow the
+then-current storage, caching, display and regional terms. Provider data must
+not be retained indefinitely merely because FreeTimers is local-first. No
+Google credentials or data are currently consumed.
+
 ### Mission
 
 Stores:
@@ -228,18 +247,20 @@ uncertainty rather than being averaged into false precision.
 
 The first persistence slice is implemented in
 [`src/adapters/local-state.ts`](../../src/adapters/local-state.ts). It defines a
-version-1 JSON envelope for the plan, vehicles, saved mission IDs and active
-mission ID. Export validates the complete state and enforces a payload limit;
-import parses untrusted JSON, rejects unsupported versions and revalidates
-nested plans and vehicles before returning data. The browser adapter in
+version-2 JSON envelope for the plan, vehicles, saved mission IDs and complete
+active mission. Export validates the complete state and enforces a payload
+limit; import parses untrusted JSON, rejects unsupported versions and
+revalidates nested plans, vehicles and active-mission records before returning
+data. Version 1 migrates deterministically without treating its legacy active
+mission ID as confirmed progress. The browser adapter in
 [`src/adapters/indexed-db.ts`](../../src/adapters/indexed-db.ts) stores one
 validated envelope in a versioned object store and only acknowledges a save
 after the read/write transaction completes. The current configurator restores
-and saves its valid plan locally.
+and saves its valid plan and active mission locally.
 
 This is not a backup: IndexedDB integration is intentionally limited to the
-current state, migrations beyond version 1 and multi-tab conflict handling are
-still pending. The configurator exposes JSON import/export for user-controlled
+current state; future migrations and multi-tab conflict handling are still
+pending. The configurator exposes JSON import/export for user-controlled
 recovery; imported files are validated before they can replace local state.
 
 IndexedDB schemas are versioned. Migrations:

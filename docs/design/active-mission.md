@@ -160,12 +160,21 @@ Users may explicitly download either:
   instructions, schedules and essential normalized records; or
 - a selected regional map package.
 
-When online, FreeTimers refreshes the selected mission package before departure
-and while the mission remains active according to provider limits. The package
-contains a real map plus multiple calculated return options when the routing
-provider supports them. Each route records profile, assumptions, calculated
-time and expiry; “multiple” does not imply that an unsafe or unsupported route
-will be manufactured.
+“Keep this mission package up to date” is enabled by default and can be
+disabled at any time. When enabled and online, FreeTimers saves the selected
+package automatically and refreshes it before departure and while the mission
+remains active according to provider limits. There is only one current package
+version per mission: a validated refresh replaces the previous version
+atomically. FreeTimers never deletes the last usable package before the new
+version has downloaded and validated successfully. A failed refresh keeps the
+previous package with its age and expiry visible.
+
+The package contains a real map plus multiple calculated return options when
+the routing provider supports them. Each route records profile, assumptions,
+calculated time and expiry; “multiple” does not imply that an unsafe or
+unsupported route will be manufactured. Disabling automatic updates preserves
+the current package until the user removes or manually updates it, but does not
+extend its validity.
 
 Before download, show estimated size, provider attribution, license limitations,
 coverage and expiry. Packages are user-managed and removable. A regional map
@@ -219,11 +228,12 @@ support a current feasible claim.
 
 ## Implementation boundary
 
-This document is a product and UX decision. Active mission mode, GPS progress,
-learned profiles, voice navigation and offline packages are not implemented
-yet. Mission images and videos are explicitly deferred. Each future capability
-requires typed data contracts, deterministic tests, privacy controls and
-adapter evidence before its status changes.
+The active mission state machine, local persistence, checklist and manual
+progress surface are implemented. GPS progress, learned profiles, voice
+navigation and offline packages are not implemented yet. Mission images and
+videos are explicitly deferred. Each future capability requires typed data
+contracts, deterministic tests, privacy controls and adapter evidence before
+its status changes.
 
 ## Resumen en español
 
@@ -233,8 +243,10 @@ usuario confirma los cambios estructurales; el GPS puede ayudar a registrar
 llegadas y salidas según una preferencia explícita y corregible. Cada misión
 tiene checklist manual, los costes reales se conservan como históricos y los
 registros revisados pueden mejorar estimaciones de consumo y demora con rangos
-y muestras. La voz funciona en todos los modos de movilidad, prioriza
-navegación sobre relatos y los paquetes offline nunca se presentan como datos
-actuales cuando han caducado. Las recomendaciones se buscan en un corredor
+y muestras. La actualización automática del paquete de misión está activa por
+defecto y puede desactivarse; una versión nueva solo reemplaza atómicamente a
+la anterior después de descargarse y validarse. La voz funciona en todos los
+modos de movilidad, prioriza navegación sobre relatos y los paquetes offline
+nunca se presentan como datos actuales cuando han caducado. Las recomendaciones se buscan en un corredor
 dinámico compatible con el regreso y el contexto histórico o natural requiere
 fuentes. Por ahora no se guardarán imágenes ni videos.
