@@ -770,7 +770,9 @@ export default function Home() {
                     )
                   }
                 >
-                  {saved.includes(mission.id) ? "Guardada" : "Secondary mission"}
+                  {saved.includes(mission.id)
+                    ? "Guardada"
+                    : "Guardar para después"}
                 </button>
               </div>
             </article>

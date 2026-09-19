@@ -43,8 +43,20 @@ providers.
 
 ## Responsive behavior
 
-- Mobile uses a single-column control surface with native date/time inputs.
-- Wider screens use a two-column configuration grid and a full-width hub field.
+- Mobile is the base layout: it uses a compact editorial introduction followed
+  by a single-column control surface, full-width 48 px inputs and actions with
+  at least 44 px touch height.
+- Tablet widths progressively expose a two-column configuration grid, paired
+  hub fields and two mission columns without changing the input order.
+- Wide screens place the planning context and configurator side by side and
+  expose three mission columns. Additional width carries useful controls rather
+  than empty decorative space.
+- Long mission names and enlarged text reflow without horizontal page scrolling.
+- Safe-area insets are respected and controls have visible keyboard focus,
+  hover, pressed, disabled and forced-color behavior.
+- Touch is primary on compact screens: controls avoid delayed double-tap
+  handling, vertical finger scrolling remains native and critical operations
+  never depend on an undisclosed gesture.
 - Every field has a visible label and a stable `id`/`htmlFor` association.
 - Valid configuration is restored from IndexedDB after reload. JSON export and
   import provide a user-controlled recovery path; invalid imports are rejected
@@ -55,14 +67,18 @@ providers.
 - Browser check at `http://localhost:3000/` confirmed all controls render.
 - Synthetic latitude `91` produced `origin.latitude is invalid`.
 - Browser console had no errors or warnings from the screen.
-- Automated UI, accessibility and route-provider checks remain pending. Browser
-  verification confirmed IndexedDB restoration; import/export still needs
-  dedicated end-to-end coverage.
+- Responsive browser checks cover the canonical compact mobile, landscape,
+  tablet and desktop widths, including horizontal-overflow and touch-target
+  measurements. Automated UI, full accessibility and route-provider checks
+  remain pending. Browser verification confirmed IndexedDB restoration;
+  import/export still needs dedicated end-to-end coverage.
 
 ## Resumen en español
 
 Plan Ahora configura hora de salida, límite de regreso, presupuesto, personas,
-transporte, varias fichas de vehículo seleccionables y hub manual. La pantalla valida los datos,
-conserva la configuración válida en el dispositivo y ofrece
+transporte, varias fichas de vehículo seleccionables y hub manual. Su base
+móvil usa una sola columna y objetivos táctiles amplios; tablet y escritorio
+añaden contexto y columnas sin alterar el orden de la tarea. La pantalla valida
+los datos, conserva la configuración válida en el dispositivo y ofrece
 exportación/importación JSON. Todavía no existe cálculo real de regreso, no pide
 GPS y no presenta una recomendación como segura.

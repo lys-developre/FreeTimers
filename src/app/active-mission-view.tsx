@@ -103,7 +103,7 @@ export function ActiveMissionView({
         ) : null}
       </section>
 
-      <div className={styles.layout}>
+      <div className={styles.layout} data-status={mission.status}>
         <section className={styles.routePanel}>
           <p className={styles.eyebrow}>MAPA Y RUTA</p>
           <div className={styles.mapPlaceholder}>
