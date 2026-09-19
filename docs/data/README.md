@@ -211,6 +211,19 @@ not reuse an approximate route as an exact safety result. A derived result
 expires no later than its earliest required input and is invalidated when
 relevant plan fields change.
 
+## Observations and learned estimates
+
+User-confirmed actual costs, vehicle consumption and operational delays are
+observations, not timeless configuration values. Store their units, context,
+observed time and provenance. Context can include occupancy, load, road type,
+traffic, weather, parking, queue and access conditions.
+
+Derived planning profiles use conservative ranges and report sample count,
+spread and last observation. They remain estimated until the user explicitly
+promotes one as a normal planning assumption. A historical entry price is never
+presented as a current provider price. Conflicting or sparse observations widen
+uncertainty rather than being averaged into false precision.
+
 ## Persistence and migrations
 
 The first persistence slice is implemented in

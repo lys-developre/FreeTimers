@@ -28,6 +28,7 @@ information always outrank decoration.
 | [Responsive behavior](./responsive-behavior.md) | How the experience changes across device capabilities |
 | [Interaction states](./interaction-states.md) | Loading, error, success, active mission, and microinteraction behavior |
 | [Voice, tone and Bardeo](./voice-and-tone.md) | Severity-aware communication, regional personality, strong-language opt-in and AI permissions |
+| [Active mission](./active-mission.md) | Adaptive itinerary, progress, checklist, learned observations, voice and offline behavior |
 | [Accessibility](./accessibility.md) | Accessibility requirements and verification checklist |
 | [Screen specification template](./screen-spec-template.md) | Required planning artifact before implementing a significant screen |
 | [Plan Now configurator](./plan-now.md) | Current implementation and evidence for the first planning screen |

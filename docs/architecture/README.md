@@ -30,6 +30,18 @@ The composition root injects concrete adapters into use cases. Calls go outward
 through ports at runtime, but domain imports never point outward. Port examples
 below describe intended contracts; they are not implemented interfaces yet.
 
+Active-mission orchestration also separates:
+
+- immutable plan constraints and deterministic evaluation;
+- current observations such as position and confirmed progress;
+- normalized provider evidence;
+- reviewed historical observations;
+- presentation, voice and optional LLM explanations.
+
+The LLM never receives responsibility for combining these into feasibility.
+Application use cases assemble a validated plan snapshot and invoke dedicated
+engines before exposing structured facts to presentation.
+
 ### Domain
 
 Pure TypeScript rules for:

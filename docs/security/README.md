@@ -134,6 +134,8 @@ Rules:
 - Calendar integration requests read-only minimum scope.
 - Calendar event bodies are not stored when occupied intervals suffice.
 - Precise location is retained only for an active mission by default.
+- Automatic arrival/departure detection requires explicit global or
+  per-activity consent, remains correctable and does not imply completion.
 - Logs omit coordinates, tokens, calendar text, and memory content.
 - Local export is explicit and warns about sensitive contents.
 - Delete-all-local-data is available before public release.
@@ -144,6 +146,10 @@ document retention for each. Store only the hub needed for return or an
 explicitly opted-in favorite; delete obsolete observations when a mission ends.
 Strip location metadata from any publicly shared demo media. Raw diagnostic
 captures stay in ignored directories and still must use synthetic data.
+Reviewed cost, consumption and delay observations require an explicit save;
+temporary measurements and raw route traces expire with the active mission.
+Offline packages expose size, coverage, attribution, expiry and deletion
+controls before download.
 
 ## Security headers
 

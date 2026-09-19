@@ -92,6 +92,12 @@ Minimum critical flows:
 6. Drop a later point when retaining it would consume the return margin.
 7. Reject a late result from a previous plan revision.
 8. Operate without network or GPS.
+9. Record and correct an automatic arrival/departure event.
+10. Block readiness when a required checklist item remains pending.
+11. Learn from reviewed synthetic consumption samples without promoting a
+    sparse estimate automatically.
+12. Use a valid offline mission package, then expire it and downgrade current
+    feasibility to unknown without hiding the reference route.
 
 For offline flows, assert both what remains available and what must become
 unknown. Do not pass a test merely because cached green geometry is visible.
