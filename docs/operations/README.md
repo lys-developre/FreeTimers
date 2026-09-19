@@ -41,9 +41,9 @@ started. This verifies the demo, not the planned providers.
 ## Configuration
 
 The application must run in demo mode without credentials.
-Currently [.env.example](../../.env.example) contains comments only and no
-environment setting enables maps, routing or LLMs. Do not obtain credentials
-until a provider is selected and its adapter is implemented.
+[.env.example](../../.env.example) contains a public template for optional
+providers and local configuration. Values are placeholders; copy it to
+`.env.local` only after selecting and documenting the provider you enable.
 
 Create local configuration from the versioned example:
 
