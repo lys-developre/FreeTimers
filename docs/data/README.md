@@ -208,6 +208,15 @@ relevant plan fields change.
 
 ## Persistence and migrations
 
+The first persistence slice is implemented in
+[`src/adapters/local-state.ts`](../../src/adapters/local-state.ts). It defines a
+version-1 JSON envelope for the plan, vehicles, saved mission IDs and active
+mission ID. Export validates the complete state and enforces a payload limit;
+import parses untrusted JSON, rejects unsupported versions and revalidates
+nested plans and vehicles before returning data. This is a contract boundary,
+not durable storage: IndexedDB integration, migrations beyond version 1,
+atomic writes and reload restoration are still pending.
+
 IndexedDB schemas are versioned. Migrations:
 
 - Are deterministic and tested against previous fixtures.

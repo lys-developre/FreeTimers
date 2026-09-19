@@ -16,12 +16,12 @@ and tests that demonstrate the change.
 | Deterministic return feasibility | Implemented domain slice: fresh route evidence, asymmetric legs, margin classification, active evaluation time, and invalid-input rejection | [Feasibility domain](../src/domain/feasibility.ts), [Tests](../src/domain/feasibility.test.ts) |
 | Plan input validation | Implemented domain slice for timestamps, timezone, margin, hub/origin coordinates, transport, travelers and money | [Plan domain](../src/domain/plan.ts), [Tests](../src/domain/plan.test.ts) |
 | Vehicle domain | Implemented validation and bounded cost estimation for synthetic car, motorcycle and bicycle records; persistence and UI are not implemented | [Vehicle domain](../src/domain/vehicles.ts), [Tests](../src/domain/vehicles.test.ts) |
-| Mobile plan configurator | Implemented in-memory controls for time window, budget, travelers, transport and manual hub; no map, GPS or persistence | [Screen](../src/app/page.tsx), [Specification](./design/plan-now.md) |
+| Mobile plan configurator | Implemented in-memory controls for time window, budget, travelers, transport and manual hub; no map, GPS or durable persistence | [Screen](../src/app/page.tsx), [Specification](./design/plan-now.md) |
 | Security baseline utilities | Implemented reusable environment, provider URL, payload-size and diagnostic redaction controls; not yet wired to external adapters | [Security utilities](../src/config/security.ts), [Tests](../src/config/security.test.ts) |
 | Quality tooling | Dependency-free documentation validator and explicit `typecheck` script implemented; coverage, CI, CodeQL and E2E remain future gates | [Validation commands](./testing/README.md#quality-gates), [Validator](../scripts/validate-docs.mjs) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
 | Saved/active mission | React memory only; reload loses these choices | [Page state](../src/app/page.tsx) |
-| Local persistence, import/export | Not implemented | [Data target](./data/README.md#persistence-and-migrations) |
+| Local persistence, import/export | Versioned local-state envelope implemented with runtime validation, bounded JSON export/import and nested plan/vehicle validation; IndexedDB and application wiring remain unimplemented | [Envelope](../src/adapters/local-state.ts), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
@@ -37,9 +37,11 @@ and tests that demonstrate the change.
 - Displayed weekday text and the fixed timestamp range are not consistently
   derived from the same source.
 - Runtime validation and the four feasibility states now exist for the focused
-  domain slices, with thirty-three repository tests passing. Provider freshness,
+  domain slices, with thirty-seven repository tests passing. Provider freshness,
   schedules, vehicle persistence, map zones and application integration remain
   unimplemented.
+- The local-state module is only a serialization/import contract. It does not
+  write to IndexedDB, preserve state across reloads, or provide backup.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
 - The security baseline utilities are tested but are not a deployment boundary
@@ -58,6 +60,7 @@ one prototype path works.
 ## Resumen en español
 
 El prototipo contiene tres misiones sintéticas, filtros básicos y estado en
-memoria. Aún no existen mapa, GPS, persistencia, PWA offline ni proveedores.
+memoria. Existe un contrato validado de exportación/importación local, pero aún
+no hay IndexedDB, mapa, GPS, PWA offline ni proveedores.
 La etiqueta actual de seguridad no calcula la vuelta y no debe usarse para
 decidir viajes reales. Este registro distingue código existente de objetivos.
