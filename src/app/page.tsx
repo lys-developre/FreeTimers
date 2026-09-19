@@ -21,6 +21,28 @@ function toDateTimeLocal(isoTimestamp: string): string {
   return localDate.toISOString().slice(0, 16);
 }
 
+function missionCategory(index: number): string {
+  if (index === 0) {
+    return "Afinidad directa";
+  }
+  if (index === 1) {
+    return "Expansión";
+  }
+  return "Descubrimiento";
+}
+
+function storageStatusMessage(
+  status: "loading" | "ready" | "error",
+): string {
+  if (status === "loading") {
+    return "Cargando tu configuración local…";
+  }
+  if (status === "ready") {
+    return "Configuración guardada solo en este dispositivo.";
+  }
+  return "No se pudo acceder al almacenamiento local.";
+}
+
 const missions: Mission[] = [
   {
     id: "rally-granada",
@@ -117,6 +139,7 @@ export default function Home() {
       : [],
     [budget, timeWindow],
   );
+  const storageMessage = storageStatusMessage(storageStatus);
 
   useEffect(() => {
     let cancelled = false;
@@ -270,13 +293,7 @@ export default function Home() {
           ) : (
             <p className={styles.formHint}>La viabilidad de regreso aún no está calculada: faltan rutas reales.</p>
           )}
-          <p className={styles.storageStatus} role="status">
-            {storageStatus === "loading"
-              ? "Cargando tu configuración local…"
-              : storageStatus === "ready"
-                ? "Configuración guardada solo en este dispositivo."
-                : "No se pudo acceder al almacenamiento local."}
-          </p>
+          <output className={styles.storageStatus}>{storageMessage}</output>
           <div className={styles.storageActions}>
             <button
               className={styles.secondary}
@@ -287,7 +304,7 @@ export default function Home() {
               Exportar configuración
             </button>
             <label className={styles.secondary}>
-              Importar configuración
+              <span>Importar configuración</span>
               <input
                 key={fileInputKey}
                 className={styles.fileInput}
@@ -312,7 +329,7 @@ export default function Home() {
             <article className={styles.mission} key={mission.id}>
               <div className={styles.missionTopline}>
                 <span className={styles.badge}>
-                  {index === 0 ? "Afinidad directa" : index === 1 ? "Expansión" : "Descubrimiento"}
+                  {missionCategory(index)}
                 </span>
                 <span className={styles.score}>{mission.score}%</span>
               </div>
