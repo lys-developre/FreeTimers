@@ -1,6 +1,6 @@
 # Recommendation ranking contract
 
-**Status:** Active  
+**Status:** Active
 **Deterministic contract:** Yes
 **Last reviewed:** 2026-09-19
 
