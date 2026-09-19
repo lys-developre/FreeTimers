@@ -116,7 +116,8 @@ This is delivery priority, not current availability.
 
 ### Next
 
-- Personal vehicles and cost models.
+- Personal vehicles and cost models (domain validation exists; storage and UI
+  remain pending).
 - Secondary Mission enrichment and resurfacing.
 - Recommendation feedback.
 - Weather and seasonal conditions.

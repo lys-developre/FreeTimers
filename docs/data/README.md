@@ -101,6 +101,10 @@ Modes:
 A personal motor vehicle may include fuel type, consumption, usable range, and
 cost assumptions. Missing values produce an unknown cost/range component, not
 zero.
+The current [vehicle domain](../../src/domain/vehicles.ts) validates synthetic
+car, motorcycle and bicycle records and returns unknown cost when energy or
+range data is unavailable. It does not infer fuel prices, autonomy or
+mechanical safety.
 
 ### Activity
 

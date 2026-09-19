@@ -15,6 +15,7 @@ and tests that demonstrate the change.
 | Filtering and ranking | Compares declared duration/cost and matching tags; not round-trip feasibility | [Domain](../src/domain/missions.ts) |
 | Deterministic return feasibility | Implemented domain slice: fresh route evidence, asymmetric legs, margin classification, active evaluation time, and invalid-input rejection | [Feasibility domain](../src/domain/feasibility.ts), [Tests](../src/domain/feasibility.test.ts) |
 | Plan input validation | Implemented domain slice for timestamps, timezone, margin, hub/origin coordinates, transport, travelers and money | [Plan domain](../src/domain/plan.ts), [Tests](../src/domain/plan.test.ts) |
+| Vehicle domain | Implemented validation and bounded cost estimation for synthetic car, motorcycle and bicycle records; persistence and UI are not implemented | [Vehicle domain](../src/domain/vehicles.ts), [Tests](../src/domain/vehicles.test.ts) |
 | Security baseline utilities | Implemented reusable environment, provider URL, payload-size and diagnostic redaction controls; not yet wired to external adapters | [Security utilities](../src/config/security.ts), [Tests](../src/config/security.test.ts) |
 | Quality tooling | Dependency-free documentation validator and explicit `typecheck` script implemented; coverage, CI, CodeQL and E2E remain future gates | [Validation commands](./testing/README.md#quality-gates), [Validator](../scripts/validate-docs.mjs) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
@@ -35,9 +36,9 @@ and tests that demonstrate the change.
 - Displayed weekday text and the fixed timestamp range are not consistently
   derived from the same source.
 - Runtime validation and the four feasibility states now exist for the focused
-  domain slices, with twenty-seven repository tests passing. Provider freshness,
-  schedules, vehicle cost/autonomy, persistence, map zones and application
-  integration remain unimplemented.
+  domain slices, with thirty-three repository tests passing. Provider freshness,
+  schedules, vehicle persistence, map zones and application integration remain
+  unimplemented.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
 - The security baseline utilities are tested but are not a deployment boundary
