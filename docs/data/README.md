@@ -6,9 +6,10 @@
 [Documentation index](../README.md) · [Feasibility contract](./feasibility.md)
 
 The records below are canonical contracts, not a complete runtime schema.
-The first implemented feasibility slice is in
-[the domain module](../../src/domain/feasibility.ts); broader records remain
-targets until migrated with tests.
+The first implemented plan and feasibility slices are in
+[the plan module](../../src/domain/plan.ts) and
+[the feasibility module](../../src/domain/feasibility.ts); broader records
+remain targets until migrated with tests.
 
 ## Principles
 
@@ -45,6 +46,10 @@ type Plan = {
   budget: Money;
 };
 ```
+
+The runtime validation for these fields is implemented in
+[createPlan](../../src/domain/plan.ts). It does not persist data or call
+providers.
 
 Constraints:
 
