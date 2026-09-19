@@ -114,8 +114,10 @@ Before a tagged release:
 8. Changelog and version are updated.
 
 Semantic Versioning will start when a public release contract exists.
-The CI and scanning gates above are required targets, not currently configured
-workflows. Record pass/fail/pending evidence against each release gate.
+The current CI workflow runs documentation validation, tests, lint, typecheck,
+build and a high-severity production dependency audit. Secret scanning, CodeQL,
+coverage and E2E remain pending gates; record pass/fail/pending evidence against
+each release gate.
 Before rollback, check schema compatibility; never assume old code can read a
 newer database. Back up data and do not downgrade a schema destructively.
 

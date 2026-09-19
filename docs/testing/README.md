@@ -128,10 +128,13 @@ npm run build
 npm run validate:docs
 ```
 
-Planned CI also includes:
+The repository now has a dependency-free CI workflow covering documentation,
+tests, lint, typecheck, build and a high-severity production dependency audit.
+It does not receive real credentials.
+
+Future CI additions:
 
 - Coverage.
-- Dependency audit.
 - Secret scan.
 - CodeQL.
 - Accessibility checks.

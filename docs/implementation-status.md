@@ -23,7 +23,7 @@ and tests that demonstrate the change.
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
 | Validation commands | Test, lint, build scripts; TypeScript CLI | [Manifest](../package.json) |
-| CI, secret scanning, CodeQL, coverage and E2E gates | Not configured in repository workflows | [Testing target](./testing/README.md#quality-gates) |
+| CI validation | GitHub Actions workflow runs docs validation, tests, lint, typecheck, build and high-severity production dependency audit; secret scanning, CodeQL, coverage and E2E remain pending | [Workflow](../.github/workflows/ci.yml), [Testing gates](./testing/README.md#quality-gates) |
 | Public setup and environment | Example provides placeholders for optional providers and local configuration | [Environment example](../.env.example) |
 | Design system | Documented target, prototype styles have not been migrated | [Tokens](./design/design-system.md), [CSS](../src/app/globals.css) |
 
