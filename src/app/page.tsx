@@ -12,6 +12,10 @@ import {
   rankMissions,
   type Mission,
 } from "@/domain/missions";
+import {
+  createActiveMission,
+  type ActiveMission,
+} from "@/domain/active-mission";
 import { createPlan } from "@/domain/plan";
 import type { Vehicle } from "@/domain/vehicles";
 import {
@@ -23,6 +27,7 @@ import {
   removeVehicle,
   upsertVehicle,
 } from "@/application/vehicle-library";
+import { ActiveMissionView } from "./active-mission-view";
 import styles from "./page.module.css";
 
 function toDateTimeLocal(isoTimestamp: string): string {
@@ -97,6 +102,7 @@ const missions: Mission[] = [
     durationMinutes: 480,
     distanceKm: 90,
     estimatedCost: 55,
+    location: { latitude: 40.01, longitude: -3.01 },
     tags: ["motor", "carretera"],
   },
   {
@@ -106,6 +112,7 @@ const missions: Mission[] = [
     durationMinutes: 360,
     distanceKm: 72,
     estimatedCost: 25,
+    location: { latitude: 40.02, longitude: -3.02 },
     tags: ["naturaleza", "fotografía"],
   },
   {
@@ -115,6 +122,7 @@ const missions: Mission[] = [
     durationMinutes: 600,
     distanceKm: 110,
     estimatedCost: 80,
+    location: { latitude: 40.03, longitude: -3.03 },
     tags: ["comida", "pueblos"],
   },
 ];
@@ -128,7 +136,8 @@ export default function Home() {
   const [latitude, setLatitude] = useState("40.4168");
   const [longitude, setLongitude] = useState("-3.7038");
   const [saved, setSaved] = useState<string[]>([]);
-  const [active, setActive] = useState<string | null>(null);
+  const [activeMission, setActiveMission] = useState<ActiveMission | null>(null);
+  const [showActiveMission, setShowActiveMission] = useState(false);
   const [storageStatus, setStorageStatus] = useState<
     "loading" | "ready" | "error"
   >("loading");
@@ -226,7 +235,8 @@ export default function Home() {
         const storedVehicles = state?.vehicles ?? [];
         setVehicles(storedVehicles);
         setSaved(state?.savedMissionIds ?? []);
-        setActive(state?.activeMissionId ?? null);
+        setActiveMission(state?.activeMission ?? null);
+        setShowActiveMission(state?.activeMission !== null);
         const selectedId =
           state?.plan?.transport.mode === "walking"
             ? undefined
@@ -260,15 +270,15 @@ export default function Home() {
       return;
     }
     void saveLocalState({
-      schemaVersion: 1,
+      schemaVersion: 2,
       plan: planState.plan,
       vehicles,
       savedMissionIds: saved,
-      activeMissionId: active,
+      activeMission,
     }).catch(() => {
       setStorageStatus("error");
     });
-  }, [active, planState.plan, saved, storageStatus, vehicles]);
+  }, [activeMission, planState.plan, saved, storageStatus, vehicles]);
 
   function applyStoredPlan(state: LocalState) {
     if (state.plan) {
@@ -281,7 +291,8 @@ export default function Home() {
       setLongitude(String(state.plan.hub.longitude));
     }
     setSaved(state.savedMissionIds);
-    setActive(state.activeMissionId);
+    setActiveMission(state.activeMission);
+    setShowActiveMission(state.activeMission !== null);
     setVehicles(state.vehicles);
     const selectedId =
       state.plan?.transport.mode === "walking"
@@ -307,11 +318,11 @@ export default function Home() {
       return;
     }
     const serialized = exportLocalState({
-      schemaVersion: 1,
+      schemaVersion: 2,
       plan: planState.plan,
       vehicles,
       savedMissionIds: saved,
-      activeMissionId: active,
+      activeMission,
     });
     const url = URL.createObjectURL(
       new Blob([serialized], { type: "application/json" }),
@@ -416,11 +427,68 @@ export default function Home() {
     setVehicleMessage("Ficha eliminada.");
   }
 
+  function handleActivateMission(mission: Mission) {
+    if (!planState.plan) {
+      return;
+    }
+    if (
+      activeMission &&
+      !window.confirm(
+        "Ya existe una misión activa. ¿Quieres reemplazarla por esta propuesta?",
+      )
+    ) {
+      return;
+    }
+    const created = createActiveMission({
+      id: `active-${mission.id}`,
+      plan: planState.plan,
+      createdAt: new Date().toISOString(),
+      visits: [
+        {
+          id: mission.id,
+          title: mission.title,
+          location: mission.location,
+          recommendedDurationMinutes: mission.durationMinutes,
+        },
+      ],
+      checklist: [
+        {
+          id: "return-essentials",
+          text: "Llevar lo necesario para regresar con seguridad",
+          importance: "required",
+          completed: false,
+        },
+      ],
+    });
+    setActiveMission(created);
+    setShowActiveMission(true);
+  }
+
+  if (activeMission && showActiveMission) {
+    return (
+      <ActiveMissionView
+        mission={activeMission}
+        onChange={setActiveMission}
+        onBackToPlanning={() => setShowActiveMission(false)}
+      />
+    );
+  }
+
   return (
     <main className={styles.page}>
       <nav className={styles.nav}>
         <strong>FreeTimers</strong>
-        <span>Solo para ti · Local-first</span>
+        {activeMission ? (
+          <button
+            className={styles.secondary}
+            type="button"
+            onClick={() => setShowActiveMission(true)}
+          >
+            Volver a la misión
+          </button>
+        ) : (
+          <span>Solo para ti · Local-first</span>
+        )}
       </nav>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>PLAN AHORA · CONFIGURACIÓN LOCAL</p>
@@ -681,12 +749,19 @@ export default function Home() {
               <div className={styles.actions}>
                 <button
                   className={styles.primary}
-                  onClick={() => setActive(mission.id)}
+                  type="button"
+                  onClick={() => handleActivateMission(mission)}
+                  disabled={!planState.plan}
                 >
-                  {active === mission.id ? "Misión activa" : "Activar misión"}
+                  {activeMission?.visits.some(
+                    (visit) => visit.id === mission.id,
+                  )
+                    ? "Misión activa"
+                    : "Activar misión"}
                 </button>
                 <button
                   className={styles.secondary}
+                  type="button"
                   onClick={() =>
                     setSaved((current) =>
                       current.includes(mission.id)
