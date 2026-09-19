@@ -10,7 +10,8 @@ export type PlanLocation = {
 };
 
 export type Transport =
-  | { mode: "walking" | "bicycle" }
+  | { mode: "walking" }
+  | { mode: "bicycle"; vehicleId?: string }
   | { mode: "car" | "motorcycle"; vehicleId?: string };
 
 export type Money = {

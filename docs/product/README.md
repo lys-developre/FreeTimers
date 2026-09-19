@@ -116,8 +116,8 @@ This is delivery priority, not current availability.
 
 ### Next
 
-- Personal vehicles and cost models (domain validation exists; storage and UI
-  remain pending).
+- Route-integrated vehicle cost models (the validated multi-vehicle library is
+  already available locally).
 - Secondary Mission enrichment and resurfacing.
 - Recommendation feedback.
 - Weather and seasonal conditions.

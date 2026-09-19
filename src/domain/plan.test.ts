@@ -86,4 +86,16 @@ describe("createPlan", () => {
       }),
     ).toThrow("vehicleId");
   });
+
+  it("preserves an optional selected bicycle profile", () => {
+    const plan = createPlan({
+      ...validPlan,
+      transport: { mode: "bicycle", vehicleId: "synthetic-bicycle" },
+    });
+
+    expect(plan.transport).toEqual({
+      mode: "bicycle",
+      vehicleId: "synthetic-bicycle",
+    });
+  });
 });

@@ -13,6 +13,16 @@ import {
   type Mission,
 } from "@/domain/missions";
 import { createPlan } from "@/domain/plan";
+import type { Vehicle } from "@/domain/vehicles";
+import {
+  createConfiguredVehicle,
+  type VehicleDraft,
+} from "@/application/vehicle-configuration";
+import {
+  nextVehicleId,
+  removeVehicle,
+  upsertVehicle,
+} from "@/application/vehicle-library";
 import styles from "./page.module.css";
 
 function toDateTimeLocal(isoTimestamp: string): string {
@@ -41,6 +51,42 @@ function storageStatusMessage(
     return "Configuración guardada solo en este dispositivo.";
   }
   return "No se pudo acceder al almacenamiento local.";
+}
+
+const defaultVehicleDraft: VehicleDraft = {
+  id: "local-vehicle-1",
+  name: "",
+  energyKind: "fuel",
+  consumptionPer100Km: "6.5",
+  costPerUnit: "1.75",
+  usableRangeKm: "650",
+};
+
+function newVehicleDraft(vehicles: Vehicle[]): VehicleDraft {
+  return {
+    ...defaultVehicleDraft,
+    id: nextVehicleId(vehicles),
+  };
+}
+
+function draftFromVehicle(vehicle: Vehicle): VehicleDraft {
+  return {
+    id: vehicle.id,
+    name: vehicle.name,
+    energyKind: vehicle.energy?.kind ?? "fuel",
+    consumptionPer100Km:
+      vehicle.energy === undefined
+        ? defaultVehicleDraft.consumptionPer100Km
+        : String(vehicle.energy.consumptionPer100Km),
+    costPerUnit:
+      vehicle.energy === undefined
+        ? defaultVehicleDraft.costPerUnit
+        : String(vehicle.energy.costPerUnitMinor / 100),
+    usableRangeKm:
+      vehicle.usableRangeKm === undefined
+        ? defaultVehicleDraft.usableRangeKm
+        : String(vehicle.usableRangeKm),
+  };
 }
 
 const missions: Mission[] = [
@@ -87,8 +133,27 @@ export default function Home() {
     "loading" | "ready" | "error"
   >("loading");
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(
+    null,
+  );
+  const [vehicleMessage, setVehicleMessage] = useState<string | null>(null);
+  const [vehicleDraft, setVehicleDraft] =
+    useState<VehicleDraft>(defaultVehicleDraft);
+  const compatibleVehicles = useMemo(
+    () => vehicles.filter((vehicle) => vehicle.mode === transport),
+    [transport, vehicles],
+  );
+  const selectedVehicle = compatibleVehicles.find(
+    (vehicle) => vehicle.id === selectedVehicleId,
+  );
   const planState = useMemo(() => {
     try {
+      if (transport !== "walking" && !selectedVehicle) {
+        throw new RangeError(
+          "Selecciona o guarda una ficha de vehículo compatible.",
+        );
+      }
       const plan = createPlan({
         startsAt: new Date(startsAt).toISOString(),
         returnDeadline: new Date(returnDeadline).toISOString(),
@@ -105,9 +170,9 @@ export default function Home() {
           source: "manual",
         },
         transport:
-          transport === "walking" || transport === "bicycle"
+          transport === "walking"
             ? { mode: transport }
-            : { mode: transport, vehicleId: `demo-${transport}` },
+            : { mode: transport, vehicleId: selectedVehicle?.id },
         travelers,
         budget: { minorUnits: Math.round(budget * 100), currency: "EUR" },
       });
@@ -126,6 +191,7 @@ export default function Home() {
     startsAt,
     transport,
     travelers,
+    selectedVehicle,
   ]);
   const timeWindow = useMemo(
     () => planState.plan
@@ -157,8 +223,26 @@ export default function Home() {
           setLatitude(String(state.plan.hub.latitude));
           setLongitude(String(state.plan.hub.longitude));
         }
+        const storedVehicles = state?.vehicles ?? [];
+        setVehicles(storedVehicles);
         setSaved(state?.savedMissionIds ?? []);
         setActive(state?.activeMissionId ?? null);
+        const selectedId =
+          state?.plan?.transport.mode === "walking"
+            ? undefined
+            : state?.plan?.transport.vehicleId;
+        const storedVehicle =
+          storedVehicles.find((vehicle) => vehicle.id === selectedId) ??
+          storedVehicles.find(
+            (vehicle) => vehicle.mode === state?.plan?.transport.mode,
+          );
+        if (storedVehicle) {
+          setSelectedVehicleId(storedVehicle.id);
+          setVehicleDraft(draftFromVehicle(storedVehicle));
+        } else {
+          setSelectedVehicleId(null);
+          setVehicleDraft(newVehicleDraft(storedVehicles));
+        }
         setStorageStatus("ready");
       })
       .catch(() => {
@@ -178,13 +262,13 @@ export default function Home() {
     void saveLocalState({
       schemaVersion: 1,
       plan: planState.plan,
-      vehicles: [],
+      vehicles,
       savedMissionIds: saved,
       activeMissionId: active,
     }).catch(() => {
       setStorageStatus("error");
     });
-  }, [active, planState.plan, saved, storageStatus]);
+  }, [active, planState.plan, saved, storageStatus, vehicles]);
 
   function applyStoredPlan(state: LocalState) {
     if (state.plan) {
@@ -198,6 +282,23 @@ export default function Home() {
     }
     setSaved(state.savedMissionIds);
     setActive(state.activeMissionId);
+    setVehicles(state.vehicles);
+    const selectedId =
+      state.plan?.transport.mode === "walking"
+        ? undefined
+        : state.plan?.transport.vehicleId;
+    const storedVehicle =
+      state.vehicles.find((vehicle) => vehicle.id === selectedId) ??
+      state.vehicles.find(
+        (vehicle) => vehicle.mode === state.plan?.transport.mode,
+      );
+    if (storedVehicle) {
+      setSelectedVehicleId(storedVehicle.id);
+      setVehicleDraft(draftFromVehicle(storedVehicle));
+    } else {
+      setSelectedVehicleId(null);
+      setVehicleDraft(newVehicleDraft(state.vehicles));
+    }
   }
 
   function handleExport() {
@@ -208,7 +309,7 @@ export default function Home() {
     const serialized = exportLocalState({
       schemaVersion: 1,
       plan: planState.plan,
-      vehicles: [],
+      vehicles,
       savedMissionIds: saved,
       activeMissionId: active,
     });
@@ -237,6 +338,82 @@ export default function Home() {
     } finally {
       setFileInputKey((key) => key + 1);
     }
+  }
+
+  function handleTransportChange(mode: typeof transport) {
+    setTransport(mode);
+    setVehicleMessage(null);
+    if (mode === "walking") {
+      setSelectedVehicleId(null);
+      return;
+    }
+    const firstCompatible = vehicles.find((vehicle) => vehicle.mode === mode);
+    setSelectedVehicleId(firstCompatible?.id ?? null);
+    setVehicleDraft(
+      firstCompatible
+        ? draftFromVehicle(firstCompatible)
+        : newVehicleDraft(vehicles),
+    );
+  }
+
+  function handleVehicleSelection(vehicleId: string) {
+    const vehicle = vehicles.find((candidate) => candidate.id === vehicleId);
+    if (!vehicle) {
+      setSelectedVehicleId(null);
+      setVehicleMessage("La ficha seleccionada ya no está disponible.");
+      return;
+    }
+    setSelectedVehicleId(vehicle.id);
+    setVehicleDraft(draftFromVehicle(vehicle));
+    setVehicleMessage(null);
+  }
+
+  function handleNewVehicle() {
+    setSelectedVehicleId(null);
+    setVehicleDraft(newVehicleDraft(vehicles));
+    setVehicleMessage("Completa los datos y guarda la nueva ficha.");
+  }
+
+  function handleSaveVehicle() {
+    try {
+      const vehicle = createConfiguredVehicle(transport, vehicleDraft);
+      if (!vehicle) {
+        throw new RangeError("walking does not use a vehicle profile");
+      }
+      setVehicles((current) => upsertVehicle(current, vehicle));
+      setSelectedVehicleId(vehicle.id);
+      setVehicleDraft(draftFromVehicle(vehicle));
+      setVehicleMessage("Ficha guardada y seleccionada.");
+    } catch {
+      setVehicleMessage("Revisa los datos antes de guardar la ficha.");
+    }
+  }
+
+  function handleDeleteVehicle() {
+    if (!selectedVehicle) {
+      return;
+    }
+    const confirmed = window.confirm(
+      `¿Eliminar la ficha “${selectedVehicle.name}” de este dispositivo?`,
+    );
+    if (!confirmed) {
+      return;
+    }
+    const remainingVehicles = removeVehicle(vehicles, selectedVehicle.id);
+    const nextCompatible = remainingVehicles.find(
+      (vehicle) => vehicle.mode === transport,
+    );
+    setVehicles(remainingVehicles);
+    setSelectedVehicleId(nextCompatible?.id ?? null);
+    setVehicleDraft(
+      nextCompatible
+        ? draftFromVehicle(nextCompatible)
+        : newVehicleDraft(remainingVehicles),
+    );
+    if (!nextCompatible) {
+      setTransport("walking");
+    }
+    setVehicleMessage("Ficha eliminada.");
   }
 
   return (
@@ -274,13 +451,169 @@ export default function Home() {
           </div>
           <div className={styles.plannerField}>
             <label htmlFor="transport">Cómo te mueves</label>
-            <select id="transport" value={transport} onChange={(event) => setTransport(event.target.value as typeof transport)}>
+            <select
+              id="transport"
+              value={transport}
+              onChange={(event) =>
+                handleTransportChange(event.target.value as typeof transport)
+              }
+            >
               <option value="car">Coche</option>
               <option value="motorcycle">Moto</option>
               <option value="bicycle">Bicicleta</option>
               <option value="walking">A pie</option>
             </select>
           </div>
+          {transport !== "walking" ? (
+            <fieldset className={styles.vehicleFields}>
+              <legend>Mis vehículos</legend>
+              <div className={styles.plannerField}>
+                <label htmlFor="selected-vehicle">Ficha para este plan</label>
+                <select
+                  id="selected-vehicle"
+                  value={selectedVehicleId ?? ""}
+                  onChange={(event) =>
+                    handleVehicleSelection(event.target.value)
+                  }
+                >
+                  <option value="">
+                    {compatibleVehicles.length === 0
+                      ? "No hay fichas guardadas"
+                      : "Selecciona una ficha"}
+                  </option>
+                  {compatibleVehicles.map((vehicle) => (
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {vehicle.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.vehicleToolbar}>
+                <button
+                  className={styles.secondary}
+                  type="button"
+                  onClick={handleNewVehicle}
+                >
+                  Nueva ficha
+                </button>
+                <span>
+                  {vehicles.length} {vehicles.length === 1 ? "ficha" : "fichas"} en este dispositivo
+                </span>
+              </div>
+              <div className={styles.plannerField}>
+                <label htmlFor="vehicle-name">Nombre</label>
+                <input
+                  id="vehicle-name"
+                  value={vehicleDraft.name}
+                  onChange={(event) =>
+                    setVehicleDraft((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              {transport === "bicycle" ? (
+                <p className={styles.formHint}>
+                  La bicicleta se guarda sin inventar consumo ni coste energético.
+                </p>
+              ) : (
+                <>
+                  <div className={styles.plannerField}>
+                    <label htmlFor="energy-kind">Energía</label>
+                    <select
+                      id="energy-kind"
+                      value={vehicleDraft.energyKind}
+                      onChange={(event) =>
+                        setVehicleDraft((current) => ({
+                          ...current,
+                          energyKind: event.target
+                            .value as VehicleDraft["energyKind"],
+                        }))
+                      }
+                    >
+                      <option value="fuel">Combustible</option>
+                      <option value="electric">Electricidad</option>
+                    </select>
+                  </div>
+                  <div className={styles.plannerField}>
+                    <label htmlFor="vehicle-consumption">
+                      Consumo por 100 km
+                    </label>
+                    <input
+                      id="vehicle-consumption"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={vehicleDraft.consumptionPer100Km}
+                      onChange={(event) =>
+                        setVehicleDraft((current) => ({
+                          ...current,
+                          consumptionPer100Km: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className={styles.plannerField}>
+                    <label htmlFor="energy-price">
+                      Precio por {vehicleDraft.energyKind === "fuel" ? "litro" : "kWh"} (€)
+                    </label>
+                    <input
+                      id="energy-price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={vehicleDraft.costPerUnit}
+                      onChange={(event) =>
+                        setVehicleDraft((current) => ({
+                          ...current,
+                          costPerUnit: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className={styles.plannerField}>
+                    <label htmlFor="usable-range">Autonomía utilizable (km)</label>
+                    <input
+                      id="usable-range"
+                      type="number"
+                      min="0.01"
+                      step="0.1"
+                      value={vehicleDraft.usableRangeKm}
+                      onChange={(event) =>
+                        setVehicleDraft((current) => ({
+                          ...current,
+                          usableRangeKm: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </>
+              )}
+              <div className={styles.vehicleActions}>
+                <button
+                  className={styles.primary}
+                  type="button"
+                  onClick={handleSaveVehicle}
+                >
+                  {selectedVehicle ? "Guardar cambios" : "Guardar ficha"}
+                </button>
+                <button
+                  className={styles.secondary}
+                  type="button"
+                  onClick={handleDeleteVehicle}
+                  disabled={!selectedVehicle}
+                >
+                  Eliminar ficha
+                </button>
+              </div>
+              {vehicleMessage ? (
+                <output className={styles.vehicleMessage}>
+                  {vehicleMessage}
+                </output>
+              ) : null}
+            </fieldset>
+          ) : null}
           <fieldset className={styles.locationFields}>
             <legend>Hub manual</legend>
             <label htmlFor="latitude">Latitud</label>

@@ -34,6 +34,9 @@ function validateEnergy(energy: VehicleEnergy | undefined, mode: VehicleMode) {
     throw new RangeError("energy is required for motor vehicles");
   }
 
+  if (energy.kind !== "fuel" && energy.kind !== "electric") {
+    throw new RangeError("energy.kind is unsupported");
+  }
   const expectedUnit = energy.kind === "fuel" ? "liter" : "kWh";
   if (energy.unit !== expectedUnit) {
     throw new RangeError("energy.unit does not match energy.kind");
@@ -48,6 +51,13 @@ function validateEnergy(energy: VehicleEnergy | undefined, mode: VehicleMode) {
 }
 
 export function createVehicle(input: VehicleInput): Vehicle {
+  if (
+    input.mode !== "car" &&
+    input.mode !== "motorcycle" &&
+    input.mode !== "bicycle"
+  ) {
+    throw new RangeError("mode is unsupported");
+  }
   if (input.id.trim().length === 0) {
     throw new RangeError("id is required");
   }

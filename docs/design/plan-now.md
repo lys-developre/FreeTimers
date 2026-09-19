@@ -17,16 +17,25 @@ Implemented inputs:
 - total budget;
 - traveler count;
 - transport mode;
+- multiple selectable local vehicle profiles with name and, for motor vehicles,
+  energy type, consumption, unit price and usable range;
 - manual latitude and longitude hub.
 
-The current screen uses synthetic vehicle IDs, persists the valid configuration
-locally, and offers JSON export/import for recovery. It does not request GPS,
-render a map or call providers.
+The current screen creates, edits, selects and deletes validated local vehicle
+profiles, persists the valid configuration locally, and offers JSON
+export/import for recovery. It does not request GPS, render a map or call
+providers.
 
 ## Trust and states
 
 - Valid values update the demo list immediately.
 - Invalid values remain visible and show an inline alert.
+- Incomplete motor-vehicle data invalidates the plan instead of assuming zero
+  cost or unlimited range.
+- Bicycle profiles do not invent energy or fuel costs.
+- Vehicle selection is limited to profiles compatible with the chosen transport
+  mode. Deleting the final compatible profile returns the plan to walking
+  instead of retaining a dangling reference.
 - No recommendation is labelled safe: routing is not connected.
 - The helper text states that return feasibility is not yet calculated.
 - Empty results mean the current synthetic missions do not fit the declared
@@ -53,7 +62,7 @@ render a map or call providers.
 ## Resumen en español
 
 Plan Ahora configura hora de salida, límite de regreso, presupuesto, personas,
-transporte y hub manual. La pantalla valida los datos, conserva la configuración
-válida en el dispositivo y ofrece exportación/importación JSON. Todavía no
-existe cálculo real de regreso, no pide GPS y no presenta una recomendación como
-segura.
+transporte, varias fichas de vehículo seleccionables y hub manual. La pantalla valida los datos,
+conserva la configuración válida en el dispositivo y ofrece
+exportación/importación JSON. Todavía no existe cálculo real de regreso, no pide
+GPS y no presenta una recomendación como segura.

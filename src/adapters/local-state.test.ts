@@ -57,6 +57,31 @@ describe("local state envelope", () => {
     );
   });
 
+  it("rejects duplicate vehicle identifiers during import", () => {
+    const duplicateVehicles = {
+      ...state,
+      vehicles: [vehicle, { ...vehicle, name: "Otra bicicleta sintética" }],
+    };
+
+    expect(() => importLocalState(JSON.stringify(duplicateVehicles))).toThrow(
+      "vehicle ids",
+    );
+  });
+
+  it("rejects a plan that references a missing or incompatible vehicle", () => {
+    const danglingReference = {
+      ...state,
+      plan: {
+        ...plan,
+        transport: { mode: "car", vehicleId: "missing-vehicle" },
+      },
+    };
+
+    expect(() => importLocalState(JSON.stringify(danglingReference))).toThrow(
+      "selected vehicle",
+    );
+  });
+
   it("rejects oversized exports before storage", () => {
     expect(() => exportLocalState(state, { maxBytes: 10 })).toThrow("limit");
   });

@@ -87,27 +87,88 @@
 }
 
 .plannerField,
-.locationFields {
+.locationFields,
+.vehicleFields {
   display: grid;
   gap: 6px;
 }
 
 .plannerField label,
 .locationFields label,
-.locationFields legend {
+.locationFields legend,
+.vehicleFields legend {
   color: var(--muted);
   font-size: 12px;
 }
 
 .plannerField input,
 .plannerField select,
-.locationFields input {
+.locationFields input,
+.vehicleFields input,
+.vehicleFields select {
   min-height: 42px;
   padding: 8px 10px;
   border: 1px solid var(--green);
   background: var(--card);
   color: var(--ink);
   font: inherit;
+}
+
+.vehicleFields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+}
+
+.vehicleFields legend {
+  padding: 0 4px;
+}
+
+.vehicleFields .formHint {
+  align-self: end;
+  padding-bottom: 11px;
+}
+
+.vehicleToolbar,
+.vehicleActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vehicleToolbar {
+  justify-content: space-between;
+}
+
+.vehicleToolbar span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.vehicleToolbar button,
+.vehicleActions button {
+  cursor: pointer;
+  padding: 10px 12px;
+  border: 1px solid var(--green);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.vehicleActions,
+.vehicleMessage {
+  grid-column: 1 / -1;
+}
+
+.vehicleActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.vehicleMessage {
+  color: var(--green);
+  font-size: 12px;
 }
 
 .locationFields {
@@ -333,6 +394,15 @@
 
   .locationFields {
     grid-template-columns: 1fr;
+  }
+
+  .vehicleFields {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicleToolbar {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .locationFields legend {

@@ -105,6 +105,11 @@ The current [vehicle domain](../../src/domain/vehicles.ts) validates synthetic
 car, motorcycle and bicycle records and returns unknown cost when energy or
 range data is unavailable. It does not infer fuel prices, autonomy or
 mechanical safety.
+The current configurator persists a validated local vehicle library. Motor
+profiles require explicit energy type, consumption, unit price and usable
+range; bicycle profiles do not invent those values. Selection is constrained
+to the current transport mode, IDs must be unique, and imported runtime enum
+values are rejected. Route-distance cost integration remains pending.
 
 ### Activity
 

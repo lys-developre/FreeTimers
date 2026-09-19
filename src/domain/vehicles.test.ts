@@ -62,6 +62,28 @@ describe("vehicle domain", () => {
     ).toThrow("energy");
   });
 
+  it("rejects unsupported runtime mode and energy values", () => {
+    const unsupportedMode = {
+      ...car,
+      mode: "boat",
+    } as unknown as VehicleInput;
+    const unsupportedEnergy = {
+      ...car,
+      energy: {
+        ...carEnergy,
+        kind: "hydrogen",
+        unit: "kWh",
+      },
+    } as unknown as VehicleInput;
+
+    expect(() =>
+      createVehicle(unsupportedMode),
+    ).toThrow("mode");
+    expect(() =>
+      createVehicle(unsupportedEnergy),
+    ).toThrow("energy.kind");
+  });
+
   it("returns unknown cost when a distance exceeds usable range", () => {
     expect(estimateVehicleCost(car, 700)).toBeNull();
   });

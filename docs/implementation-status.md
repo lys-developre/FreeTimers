@@ -15,12 +15,12 @@ and tests that demonstrate the change.
 | Filtering and ranking | Compares declared duration/cost and matching tags; not round-trip feasibility | [Domain](../src/domain/missions.ts) |
 | Deterministic return feasibility | Implemented domain slice: fresh route evidence, asymmetric legs, margin classification, active evaluation time, and invalid-input rejection | [Feasibility domain](../src/domain/feasibility.ts), [Tests](../src/domain/feasibility.test.ts) |
 | Plan input validation | Implemented domain slice for timestamps, timezone, margin, hub/origin coordinates, transport, travelers and money | [Plan domain](../src/domain/plan.ts), [Tests](../src/domain/plan.test.ts) |
-| Vehicle domain | Implemented validation and bounded cost estimation for synthetic car, motorcycle and bicycle records; persistence and UI are not implemented | [Vehicle domain](../src/domain/vehicles.ts), [Tests](../src/domain/vehicles.test.ts) |
-| Mobile plan configurator | Implemented in-memory controls for time window, budget, travelers, transport and manual hub; no map, GPS or durable persistence | [Screen](../src/app/page.tsx), [Specification](./design/plan-now.md) |
+| Vehicle configuration | Domain validation, bounded cost estimation, form conversion and a persisted multi-vehicle library are implemented for car, motorcycle and bicycle; route-based cost integration remains pending | [Vehicle domain](../src/domain/vehicles.ts), [Form conversion](../src/application/vehicle-configuration.ts), [Vehicle library](../src/application/vehicle-library.ts), [Screen](../src/app/page.tsx), [Tests](../src/application/vehicle-library.test.ts) |
+| Mobile plan configurator | Implemented persisted controls for time window, budget, travelers, transport, selectable vehicle profiles and manual hub; no map or GPS | [Screen](../src/app/page.tsx), [Specification](./design/plan-now.md) |
 | Security baseline utilities | Implemented reusable environment, provider URL, payload-size and diagnostic redaction controls; not yet wired to external adapters | [Security utilities](../src/config/security.ts), [Tests](../src/config/security.test.ts) |
 | Quality tooling | Dependency-free documentation validator and explicit `typecheck` script implemented; coverage, CI, CodeQL and E2E remain future gates | [Validation commands](./testing/README.md#quality-gates), [Validator](../scripts/validate-docs.mjs) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
-| Saved/active mission | React memory only; reload loses these choices | [Page state](../src/app/page.tsx) |
+| Saved/active mission | Persisted locally with the current configurator state; lifecycle remains a prototype toggle | [Page state](../src/app/page.tsx), [Local envelope](../src/adapters/local-state.ts) |
 | Local persistence, import/export | Versioned local-state envelope, IndexedDB current-state adapter and configurator JSON import/export implemented; migrations beyond version 1 and multi-tab conflict handling remain unimplemented | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
@@ -37,9 +37,9 @@ and tests that demonstrate the change.
 - Displayed weekday text and the fixed timestamp range are not consistently
   derived from the same source.
 - Runtime validation and the four feasibility states now exist for the focused
-  domain slices, with thirty-seven repository tests passing. Provider freshness,
-  schedules, vehicle persistence, map zones and application integration remain
-  unimplemented.
+  domain slices, with forty-nine repository tests passing. Provider freshness,
+  schedules, route-based vehicle costing, map zones and application integration
+  remain unimplemented.
 - The local-state module and IndexedDB adapter preserve the current valid
   configurator state across reloads. JSON import/export is available as a
   recovery path; it is not an encrypted backup and does not solve migrations
@@ -61,8 +61,9 @@ one prototype path works.
 
 ## Resumen en español
 
-El prototipo contiene tres misiones sintéticas, filtros básicos, persistencia
-local mediante IndexedDB y exportación/importación JSON validada. Aún no existen
-mapa, GPS, PWA offline ni proveedores.
+El prototipo contiene tres misiones sintéticas, filtros básicos, una biblioteca
+local de vehículos, persistencia mediante IndexedDB y
+exportación/importación JSON validada. Aún no existen mapa, GPS, PWA offline ni
+proveedores.
 La etiqueta actual de seguridad no calcula la vuelta y no debe usarse para
 decidir viajes reales. Este registro distingue código existente de objetivos.

@@ -43,6 +43,25 @@ function validateState(value: unknown): LocalState {
     }
     return createVehicle(vehicle as Vehicle);
   });
+  const vehicleIds = new Set(vehicles.map((vehicle) => vehicle.id));
+  if (vehicleIds.size !== vehicles.length) {
+    throw new RangeError("vehicle ids must be unique");
+  }
+  if (
+    plan &&
+    plan.transport.mode !== "walking" &&
+    plan.transport.vehicleId !== undefined
+  ) {
+    const { mode, vehicleId } = plan.transport;
+    const selectedVehicle = vehicles.find(
+      (vehicle) => vehicle.id === vehicleId,
+    );
+    if (!selectedVehicle || selectedVehicle.mode !== mode) {
+      throw new RangeError(
+        "selected vehicle must exist and match the transport mode",
+      );
+    }
+  }
   if (!Array.isArray(value.savedMissionIds)) {
     throw new TypeError("savedMissionIds must be an array");
   }
