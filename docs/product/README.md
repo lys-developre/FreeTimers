@@ -66,6 +66,15 @@ mission can be prepared or activated; completion requires user confirmation.
 Replacing an active mission requires confirmation and must not delete the
 previous saved record. Returning GPS alone cannot mark a mission completed.
 
+An active mission may contain an ordered sequence of visit points. The sequence
+is provisional: after each user-confirmed visit, material position change,
+elapsed-time change or relevant evidence update, the application re-evaluates
+the remaining points against the fixed return deadline and hub. Preserving the
+return margin has priority over completing every planned point. When the
+remaining sequence no longer fits, the product must recommend skipping,
+shortening or ending the mission; it must never keep an obsolete itinerary
+merely to preserve the original plan.
+
 ## Product principles
 
 - Time is the first filter.

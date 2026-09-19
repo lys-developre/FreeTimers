@@ -100,6 +100,20 @@ present it as current.
   blocking evidence, show the unresolved state prominently; do not transform
   activation into an endorsement of a safe trip.
 
+### Progress through visit points
+
+- Keep the fixed hub, hard return deadline and current return margin persistent.
+- Let the user explicitly mark the current point completed, skipped or still in
+  progress; GPS proximity alone does not complete it.
+- Recalculate the remaining sequence from the recent current position and time.
+- If all remaining points no longer fit, present the smallest safe adjustment:
+  shorten a stay when supported, skip later points, or begin returning.
+- Make “Volver ahora” continuously available and more prominent as reserve
+  decreases.
+- Announce meaningful state changes without repeatedly interrupting the user.
+- Never require interaction while driving; controls assume a stationary user or
+  passenger.
+
 ### Complete mission
 
 - Ask for lightweight confirmation.

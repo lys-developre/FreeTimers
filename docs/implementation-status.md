@@ -21,6 +21,7 @@ and tests that demonstrate the change.
 | Quality tooling | Dependency-free documentation validator and explicit `typecheck` script implemented; coverage, CI, CodeQL and E2E remain future gates | [Validation commands](./testing/README.md#quality-gates), [Validator](../scripts/validate-docs.mjs) |
 | Automated behavior tests | Four examples: elapsed time, duration, budget and affinity | [Tests](../src/domain/missions.test.ts) |
 | Saved/active mission | Persisted locally with the current configurator state; lifecycle remains a prototype toggle | [Page state](../src/app/page.tsx), [Local envelope](../src/adapters/local-state.ts) |
+| Adaptive active mission | Multi-point refresh, confirmed visit progress and deterministic shortening are specified but not implemented | [Product behavior](./product/README.md), [Feasibility refresh](./data/feasibility.md#active-mission-refresh) |
 | Local persistence, import/export | Versioned local-state envelope, IndexedDB current-state adapter and configurator JSON import/export implemented; migrations beyond version 1 and multi-tab conflict handling remain unimplemented | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
@@ -44,6 +45,8 @@ and tests that demonstrate the change.
   configurator state across reloads. JSON import/export is available as a
   recovery path; it is not an encrypted backup and does not solve migrations
   beyond version 1 or multi-tab conflict resolution.
+- The active-mission control does not yet track visit progress, watch current
+  position, reroute remaining points or recommend an early return.
 - Native-map, persistence, accessibility, deployment and security readiness
   require their own evidence before being marked implemented.
 - The security baseline utilities are tested but are not a deployment boundary

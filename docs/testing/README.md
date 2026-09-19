@@ -88,8 +88,10 @@ Minimum critical flows:
 2. Evaluate activities.
 3. Activate or save a mission.
 4. Restore an active mission.
-5. Recalculate return status.
-6. Operate without network or GPS.
+5. Confirm a visited point and recalculate the remaining sequence.
+6. Drop a later point when retaining it would consume the return margin.
+7. Reject a late result from a previous plan revision.
+8. Operate without network or GPS.
 
 For offline flows, assert both what remains available and what must become
 unknown. Do not pass a test merely because cached green geometry is visible.

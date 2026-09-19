@@ -131,6 +131,21 @@ Attach a plan revision and evaluation timestamp to results; discard late
 responses for older revisions even when request cancellation fails. Evaluate
 time with an injected clock, and refresh on resume before showing current status.
 
+During an active multi-point mission, the application loop is:
+
+```text
+recent origin + current time + confirmed progress
+  -> create a new plan revision
+  -> route only the remaining sequence
+  -> reserve the route to the fixed hub
+  -> retain, shorten, skip or end remaining visits deterministically
+  -> publish the newest result if its revision is still current
+```
+
+The original itinerary is context, not authority. The fixed deadline, hub,
+margin and current evidence govern the next decision. GPS updates location but
+never mark a point visited; progress changes require explicit user action.
+
 See the [feasibility contract](../data/feasibility.md) for asymmetric travel,
 activity time, uncertainty and map classification.
 

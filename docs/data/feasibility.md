@@ -86,6 +86,22 @@ the remaining window automatically; do not add the full activity duration again.
 GPS alone does not prove when an activity started or ended. Keep elapsed-time
 inference separate from user-confirmed progress.
 
+For a mission with multiple visit points, evaluate the remaining ordered
+sequence from the current origin and current time. Confirmed completed or
+skipped points consume their recorded time but are not routed again. For every
+remaining prefix, include travel between points, remaining stay/wait time,
+known breaks and a fresh route from the final retained point to the fixed hub.
+Choose only a prefix that preserves the required return classification; a point
+that makes the return unknown, tight or unviable cannot be retained under a
+stronger label from an earlier evaluation.
+
+Refresh is event-driven while the application is active: meaningful position
+change, confirmed point progress, elapsed-time threshold, route expiry,
+schedule/condition change, plan edit and application resume each create a new
+plan revision. Throttle GPS and network work according to movement, freshness,
+battery and provider limits. “Real time” does not promise continuous background
+execution while the browser or PWA is suspended.
+
 Every result identifies plan revision, evaluated time, route assumptions,
 freshness and algorithm version. Reject obsolete results. Do not move hub
 silently or promise background monitoring when the PWA is closed.
@@ -104,6 +120,7 @@ Synthetic minutes; all evidence is valid unless stated otherwise:
 | Return evidence expired | 120 / 20 | Not trusted | `unknown`, no green activity |
 | Asymmetric legs | 120 / 20 | 30 out + 20 stay + 80 return | `unviable`; doubling 30 is invalid |
 | Active mission | 60 / 10 | 0 out + 15 remaining stay + 35 return | `safe`, no repeat of elapsed stay |
+| Active multi-stop plan | 90 / 15 | next point 20 + stay 25 + later point 25 + return 35 | Drop the later point; retained sequence must preserve return margin |
 
 Also test cross-midnight/DST, scheduled waiting, cancellation, unknown prices,
 insufficient range, rest requirements, no coverage and out-of-order requests.
