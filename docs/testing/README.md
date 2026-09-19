@@ -123,8 +123,9 @@ Current local commands:
 ```bash
 npm test
 npm run lint
-npx tsc --noEmit
+npm run typecheck
 npm run build
+npm run validate:docs
 ```
 
 Planned CI also includes:
@@ -144,7 +145,7 @@ escalate when changed boundaries or failures require broader coverage.
 
 | Change | Required evidence |
 | --- | --- |
-| Prose-only documentation | Local file/anchor links, metadata, bilingual summary, consistency with source and whitespace |
+| Prose-only documentation | `npm run validate:docs`, consistency with source and whitespace |
 | Runnable examples or agent instructions | Documentation checks plus validation of affected examples/rules; application checks only if affected |
 | Domain/application logic | Relevant unit/integration tests, lint, typecheck, production build |
 | Provider or server boundary | Contract/error/privacy tests, runtime configuration validation, lint, typecheck, build |
@@ -175,7 +176,8 @@ El TDD parte de comportamiento observable y fallos dañinos. El dominio usa test
 unitarios; proveedores, tests de contrato con fixtures; límites, integración; y
 los flujos críticos, E2E. No se usan APIs reales en la suite normal ni datos
 personales en fixtures.
-Los casos pendientes no son cobertura existente. Cada cambio selecciona sus
+Los casos pendientes no son cobertura existente. `npm run validate:docs` comprueba
+enlaces, anclas, metadatos, resumen en español y espacios sobrantes. Cada cambio selecciona sus
 comprobaciones con la matriz: la prosa requiere validar enlaces y coherencia,
 no reconstruir una aplicación sin cambios. El TDD demostrado registra el fallo
 correcto antes de implementar y el paso a verde después.
