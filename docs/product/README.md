@@ -148,6 +148,10 @@ This is delivery priority, not current availability.
   affinity.
 - “Not now” preserves interest; “not interested” records explicit preference.
 - A future mission can be saved even when it cannot fit today's window.
+- Active recommendations search a dynamic corridor compatible with the
+  remaining itinerary and return direction, not only a circular nearby radius.
+- Historical and natural context requires attributable official, local or
+  openly licensed sources; model recall alone is not a source.
 - Current planning exposes missing data instead of promising a safe trip.
 
 See [testing](../testing/README.md) for how these behaviors are verified.

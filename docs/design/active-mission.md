@@ -56,6 +56,17 @@ New objectives may be proposed only when fresh required evidence proves that
 they fit while preserving the full configured return margin. Unknown or stale
 opportunities remain informational and cannot enter the active plan.
 
+The recommendation search follows a dynamic corridor rather than a fixed
+circle. It considers the recent GPS origin, direction of travel, remaining
+itinerary and the return path to the hub. The corridor contracts as available
+margin decreases and may widen only when the complete candidate visit and
+return remain validated. Nearby does not mean suitable when it requires travel
+away from the viable return direction.
+
+Historical, natural and cultural context comes from official or local sources
+and openly licensed datasets with provenance. The model may summarize and
+connect sourced facts; it cannot invent local history, species or significance.
+
 ## Visit progress
 
 Users can confirm arrival and departure manually. GPS assistance is configurable
@@ -149,8 +160,16 @@ Users may explicitly download either:
   instructions, schedules and essential normalized records; or
 - a selected regional map package.
 
+When online, FreeTimers refreshes the selected mission package before departure
+and while the mission remains active according to provider limits. The package
+contains a real map plus multiple calculated return options when the routing
+provider supports them. Each route records profile, assumptions, calculated
+time and expiry; “multiple” does not imply that an unsafe or unsupported route
+will be manufactured.
+
 Before download, show estimated size, provider attribution, license limitations,
-coverage and expiry. Packages are user-managed and removable.
+coverage and expiry. Packages are user-managed and removable. A regional map
+provides geographic context but does not replace plan-specific return routes.
 
 An offline route supports a return decision only while it is valid for the
 plan and freshness policy. Without current traffic or conditions it cannot be
@@ -175,6 +194,11 @@ Store only the observations needed for the active mission unless the user
 explicitly saves a reviewed cost, consumption, delay or memory record. A route
 trace is not retained automatically.
 
+Images and videos are outside the current scope. FreeTimers does not copy,
+reference, upload or synchronize mission media. A later media decision must
+separately choose storage, quotas, metadata stripping, export and deletion
+behavior before implementation.
+
 ## Non-happy states
 
 The active mode defines visible behavior for:
@@ -197,8 +221,9 @@ support a current feasible claim.
 
 This document is a product and UX decision. Active mission mode, GPS progress,
 learned profiles, voice navigation and offline packages are not implemented
-yet. Each requires typed data contracts, deterministic tests, privacy controls
-and adapter evidence before its status changes.
+yet. Mission images and videos are explicitly deferred. Each future capability
+requires typed data contracts, deterministic tests, privacy controls and
+adapter evidence before its status changes.
 
 ## Resumen en español
 
@@ -210,4 +235,6 @@ tiene checklist manual, los costes reales se conservan como históricos y los
 registros revisados pueden mejorar estimaciones de consumo y demora con rangos
 y muestras. La voz funciona en todos los modos de movilidad, prioriza
 navegación sobre relatos y los paquetes offline nunca se presentan como datos
-actuales cuando han caducado.
+actuales cuando han caducado. Las recomendaciones se buscan en un corredor
+dinámico compatible con el regreso y el contexto histórico o natural requiere
+fuentes. Por ahora no se guardarán imágenes ni videos.
