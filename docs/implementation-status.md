@@ -27,6 +27,7 @@ and tests that demonstrate the change.
 | Voice and AI permissions | Default severity-aware voice, optional regional Bardeo profile and denied-by-default modular AI permissions are specified but not implemented | [Voice and tone](./design/voice-and-tone.md), [LLM boundary](./architecture/README.md#llm-boundary) |
 | Local persistence, import/export | Schema version 2 persists the active-mission record and validates nested plan/vehicle references; version 1 migration, IndexedDB and JSON import/export are implemented; multi-tab conflict handling remains pending | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | Route coverage contract | Implemented domain slice: route requests, coverage classification, freshness and expiry validation, and conversion to feasibility evidence; live map rendering and provider-backed routing remain pending | [Routing domain](../src/domain/routing.ts), [Tests](../src/domain/routing.test.ts), [Feasibility target](./data/feasibility.md) |
+| Synthetic routing adapter | Implemented adapter with deterministic synthetic fixtures, unsupported-area handling and missing-route fallbacks; no real route provider or map layer yet | [Adapter](../src/adapters/synthetic-routing.ts), [Tests](../src/adapters/synthetic-routing.test.ts) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
@@ -75,6 +76,8 @@ seguir una misión activa con checklist y progreso confirmado. Incluye
 persistencia mediante IndexedDB y exportación/importación JSON validada, y ya
 existe un contrato de rutas y cobertura que valida frescura, expiración y
 estados de cobertura antes de que la evidencia pueda alimentar la viabilidad.
+También hay un adaptador sintético de rutas para devolver resultados reales de
+entorno controlado sin depender de proveedores externos ni de un mapa visual.
 Aún no existen mapa real, GPS, PWA offline ni proveedores de rutas en vivo.
 La etiqueta actual de seguridad no calcula la vuelta y no debe usarse para
 decidir viajes reales. Este registro distingue código existente de objetivos.
