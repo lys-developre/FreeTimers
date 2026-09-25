@@ -15,6 +15,7 @@ describe("reachability", () => {
     expect(result.status).toBe("safe");
     expect(result.radiusKm).toBeCloseTo(20, 5);
     expect(result.availableWindowMinutes).toBe(100);
+    expect(result.zone?.points.length).toBe(32);
   });
 
   it("shrinks the round-trip radius when the reserve margin consumes part of the window", () => {

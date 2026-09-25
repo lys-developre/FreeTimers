@@ -1,3 +1,4 @@
+import { createReachabilityZone, type ReachabilityZone } from "./reachability-zone";
 import type { GeoPoint } from "./routing";
 
 export type ReachabilityEvidenceStatus = "fresh" | "stale" | "unsupported" | "missing";
@@ -17,6 +18,7 @@ export type ReachabilityResult = {
   radiusKm: number;
   availableWindowMinutes: number;
   center: GeoPoint;
+  zone: ReachabilityZone | null;
   reasons: string[];
 };
 
@@ -76,6 +78,7 @@ export function estimateReachability(
       radiusKm: 0,
       availableWindowMinutes,
       center: input.origin,
+      zone: null,
       reasons: ["Required route evidence is not fresh enough to compute a reachability zone."],
     };
   }
@@ -88,6 +91,7 @@ export function estimateReachability(
     radiusKm,
     availableWindowMinutes,
     center: input.origin,
+    zone: createReachabilityZone({ center: input.origin, radiusKm }),
     reasons: [
       "Radius is a deterministic round-trip estimate derived from the remaining window and margin.",
     ],
