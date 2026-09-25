@@ -207,7 +207,9 @@
 
 .formHint,
 .formError,
-.storageStatus {
+.storageStatus,
+.reachabilityNotice,
+.reachabilityCaveat {
   grid-column: 1 / -1;
   margin: 0;
   font-size: 0.875rem;
@@ -228,6 +230,49 @@
 
 .storageActions {
   grid-column: 1 / -1;
+}
+
+.reachabilityPanel {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-control-border);
+  border-left-width: 4px;
+  background: var(--color-surface);
+}
+
+.reachabilityPanel h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.reachabilityNotice {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.reachabilityFacts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.reachabilityFacts dt {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.reachabilityFacts dd {
+  font-family: var(--font-numeric);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.reachabilityCaveat {
+  color: var(--color-text-muted);
 }
 
 .fileInput {
@@ -391,6 +436,10 @@
   .vehicleFields {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-column: 1 / -1;
+  }
+
+  .reachabilityFacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .vehicleToolbar,

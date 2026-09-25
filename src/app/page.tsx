@@ -27,6 +27,10 @@ import {
   removeVehicle,
   upsertVehicle,
 } from "@/application/vehicle-library";
+import {
+  defaultReachabilitySpeedKmh,
+  estimatePlanReachability,
+} from "@/application/plan-reachability";
 import { ActiveMissionView } from "./active-mission-view";
 import styles from "./page.module.css";
 
@@ -133,6 +137,10 @@ export default function Home() {
   const [transport, setTransport] = useState<"car" | "motorcycle" | "bicycle" | "walking">("car");
   const [startsAt, setStartsAt] = useState("2026-09-19T17:00");
   const [returnDeadline, setReturnDeadline] = useState("2026-09-20T05:00");
+  const [returnMarginMinutes, setReturnMarginMinutes] = useState(30);
+  const [reachabilitySpeedKmh, setReachabilitySpeedKmh] = useState(() =>
+    defaultReachabilitySpeedKmh("car"),
+  );
   const [latitude, setLatitude] = useState("40.4168");
   const [longitude, setLongitude] = useState("-3.7038");
   const [saved, setSaved] = useState<string[]>([]);
@@ -167,7 +175,8 @@ export default function Home() {
         startsAt: new Date(startsAt).toISOString(),
         returnDeadline: new Date(returnDeadline).toISOString(),
         timeZone: "Europe/Madrid",
-        returnMarginMinutes: 30,
+        returnMarginMinutes,
+        reachabilitySpeedKmh,
         origin: {
           latitude: Number(latitude),
           longitude: Number(longitude),
@@ -197,11 +206,32 @@ export default function Home() {
     latitude,
     longitude,
     returnDeadline,
+    reachabilitySpeedKmh,
+    returnMarginMinutes,
     startsAt,
     transport,
     travelers,
     selectedVehicle,
   ]);
+  const reachabilityState = useMemo(() => {
+    if (!planState.plan) {
+      return { result: null, error: null };
+    }
+    try {
+      return {
+        result: estimatePlanReachability(planState.plan, selectedVehicle),
+        error: null,
+      };
+    } catch (error) {
+      return {
+        result: null,
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo estimar el alcance.",
+      };
+    }
+  }, [planState.plan, selectedVehicle]);
   const timeWindow = useMemo(
     () => planState.plan
       ? createTimeWindow(planState.plan.startsAt, planState.plan.returnDeadline)
@@ -226,6 +256,11 @@ export default function Home() {
         if (state?.plan) {
           setStartsAt(toDateTimeLocal(state.plan.startsAt));
           setReturnDeadline(toDateTimeLocal(state.plan.returnDeadline));
+          setReturnMarginMinutes(state.plan.returnMarginMinutes);
+          setReachabilitySpeedKmh(
+            state.plan.reachabilitySpeedKmh ??
+              defaultReachabilitySpeedKmh(state.plan.transport.mode),
+          );
           setBudget(state.plan.budget.minorUnits / 100);
           setTravelers(state.plan.travelers);
           setTransport(state.plan.transport.mode);
@@ -284,6 +319,11 @@ export default function Home() {
     if (state.plan) {
       setStartsAt(toDateTimeLocal(state.plan.startsAt));
       setReturnDeadline(toDateTimeLocal(state.plan.returnDeadline));
+      setReturnMarginMinutes(state.plan.returnMarginMinutes);
+      setReachabilitySpeedKmh(
+        state.plan.reachabilitySpeedKmh ??
+          defaultReachabilitySpeedKmh(state.plan.transport.mode),
+      );
       setBudget(state.plan.budget.minorUnits / 100);
       setTravelers(state.plan.travelers);
       setTransport(state.plan.transport.mode);
@@ -353,6 +393,7 @@ export default function Home() {
 
   function handleTransportChange(mode: typeof transport) {
     setTransport(mode);
+    setReachabilitySpeedKmh(defaultReachabilitySpeedKmh(mode));
     setVehicleMessage(null);
     if (mode === "walking") {
       setSelectedVehicleId(null);
@@ -508,6 +549,35 @@ export default function Home() {
           <div className={styles.plannerField}>
             <label htmlFor="return-deadline">Volver antes de</label>
             <input id="return-deadline" type="datetime-local" value={returnDeadline} onChange={(event) => setReturnDeadline(event.target.value)} />
+          </div>
+          <div className={styles.plannerField}>
+            <label htmlFor="return-margin">Margen de regreso (min)</label>
+            <input
+              id="return-margin"
+              type="number"
+              min="0"
+              step="5"
+              value={returnMarginMinutes}
+              onChange={(event) =>
+                setReturnMarginMinutes(Number(event.target.value))
+              }
+            />
+          </div>
+          <div className={styles.plannerField}>
+            <label htmlFor="reachability-speed">
+              Velocidad media supuesta (km/h)
+            </label>
+            <input
+              id="reachability-speed"
+              type="number"
+              min="0.1"
+              max="300"
+              step="0.1"
+              value={reachabilitySpeedKmh}
+              onChange={(event) =>
+                setReachabilitySpeedKmh(Number(event.target.value))
+              }
+            />
           </div>
           <div className={styles.plannerField}>
             <label htmlFor="budget">Presupuesto total (€)</label>
@@ -689,11 +759,98 @@ export default function Home() {
             <label htmlFor="longitude">Longitud</label>
             <input id="longitude" inputMode="decimal" value={longitude} onChange={(event) => setLongitude(event.target.value)} />
           </fieldset>
+          {reachabilityState.error ? (
+            <p className={styles.formError} role="alert">
+              {reachabilityState.error}
+            </p>
+          ) : null}
+          {reachabilityState.result?.zone ? (
+            <section
+              className={styles.reachabilityPanel}
+              aria-labelledby="reachability-title"
+            >
+              <p className={styles.eyebrow}>ESTIMACIÓN · NO VERIFICADA POR RUTAS</p>
+              <h2 id="reachability-title">Alcance geométrico orientativo</h2>
+              <p className={styles.reachabilityNotice}>
+                No es una isócrona ni confirma que puedas llegar y volver. La
+                viabilidad de regreso sigue desconocida hasta disponer de rutas
+                reales de ida y vuelta.
+              </p>
+              <dl className={styles.reachabilityFacts}>
+                <div>
+                  <dt>Radio teórico de ida</dt>
+                  <dd>
+                    {reachabilityState.result.radiusKm.toLocaleString("es-ES", {
+                      maximumFractionDigits: 1,
+                    })}{" "}
+                    km
+                  </dd>
+                </div>
+                <div>
+                  <dt>Velocidad asumida</dt>
+                  <dd>
+                    {reachabilitySpeedKmh.toLocaleString("es-ES")} km/h
+                  </dd>
+                </div>
+                <div>
+                  <dt>Tiempo tras reservar el margen</dt>
+                  <dd>
+                    {Math.round(
+                      reachabilityState.result.availableWindowMinutes,
+                    )}{" "}
+                    min
+                  </dd>
+                </div>
+                <div>
+                  <dt>Transporte</dt>
+                  <dd>
+                    {transport === "walking"
+                      ? "A pie"
+                      : `${selectedVehicle?.name ?? "Vehículo seleccionado"} · ${
+                          transport === "car"
+                            ? "coche"
+                            : transport === "motorcycle"
+                              ? "moto"
+                              : "bicicleta"
+                        }`}
+                  </dd>
+                </div>
+              </dl>
+              <p className={styles.reachabilityCaveat}>
+                Es un círculo calculado con velocidad constante y tiempo de ida
+                y vuelta repartido por igual. No contempla carreteras, tráfico,
+                descansos, terreno ni condiciones de acceso. Ajusta la
+                velocidad a tu situación.
+                {selectedVehicle?.usableRangeKm !== undefined ? (
+                  <>
+                    {" "}
+                    La ficha declara una autonomía nominal de{" "}
+                    {selectedVehicle.usableRangeKm.toLocaleString("es-ES")} km,
+                    pero no conocemos el combustible o la carga disponible; esa
+                    cifra no limita esta estimación.
+                  </>
+                ) : null}
+              </p>
+            </section>
+          ) : null}
+          {reachabilityState.result?.status === "no-window" ? (
+            <p className={styles.formHint}>
+              El margen configurado ocupa toda la ventana; no queda tiempo para
+              estimar alcance. La viabilidad de regreso sigue desconocida.
+            </p>
+          ) : null}
+          {reachabilityState.result?.status === "geospatial-limit" ? (
+            <p className={styles.formHint}>
+              La combinación de ventana y velocidad supera el límite para
+              representar un círculo geográfico útil. No se muestra una zona y
+              la viabilidad de regreso sigue desconocida.
+            </p>
+          ) : null}
           {planState.error ? (
-            <p className={styles.formError} role="alert">{planState.error}</p>
-          ) : (
-            <p className={styles.formHint}>La viabilidad de regreso aún no está calculada: faltan rutas reales.</p>
-          )}
+            <p className={styles.formError} role="alert">
+              {planState.error}
+            </p>
+          ) : null}
           <output className={styles.storageStatus}>{storageMessage}</output>
           <div className={styles.storageActions}>
             <button
