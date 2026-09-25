@@ -26,6 +26,7 @@ and tests that demonstrate the change.
 | Mission media | Images and videos are explicitly deferred; no local reference, copy or cloud synchronization is implemented | [Active mission scope](./design/active-mission.md#permission-and-privacy-behavior) |
 | Voice and AI permissions | Default severity-aware voice, optional regional Bardeo profile and denied-by-default modular AI permissions are specified but not implemented | [Voice and tone](./design/voice-and-tone.md), [LLM boundary](./architecture/README.md#llm-boundary) |
 | Local persistence, import/export | Schema version 2 persists the active-mission record and validates nested plan/vehicle references; version 1 migration, IndexedDB and JSON import/export are implemented; multi-tab conflict handling remains pending | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
+| Route coverage contract | Implemented domain slice: route requests, coverage classification, freshness and expiry validation, and conversion to feasibility evidence; live map rendering and provider-backed routing remain pending | [Routing domain](../src/domain/routing.ts), [Tests](../src/domain/routing.test.ts), [Feasibility target](./data/feasibility.md) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
@@ -71,7 +72,9 @@ one prototype path works.
 El prototipo contiene tres misiones sintéticas, filtros básicos, una biblioteca
 local de vehículos y superficies mobile-first adaptables para planificar y
 seguir una misión activa con checklist y progreso confirmado. Incluye
-persistencia mediante IndexedDB y exportación/importación JSON validada. Aún no
-existen mapa, GPS, PWA offline ni proveedores.
+persistencia mediante IndexedDB y exportación/importación JSON validada, y ya
+existe un contrato de rutas y cobertura que valida frescura, expiración y
+estados de cobertura antes de que la evidencia pueda alimentar la viabilidad.
+Aún no existen mapa real, GPS, PWA offline ni proveedores de rutas en vivo.
 La etiqueta actual de seguridad no calcula la vuelta y no debe usarse para
 decidir viajes reales. Este registro distingue código existente de objetivos.
