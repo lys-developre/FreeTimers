@@ -99,14 +99,42 @@ describe("createPlan", () => {
     });
   });
 
+  it("validates and preserves an optional reachability speed assumption", () => {
+    const plan = createPlan({
+      ...validPlan,
+      reachabilitySpeedKmh: 24,
+    });
+
+    expect(plan.reachabilitySpeedKmh).toBe(24);
+    expect(() =>
+      createPlan({
+        ...validPlan,
+        reachabilitySpeedKmh: 0,
+      }),
+    ).toThrow("reachabilitySpeedKmh");
+    expect(() =>
+      createPlan({
+        ...validPlan,
+        reachabilitySpeedKmh: 301,
+      }),
+    ).toThrow("reachabilitySpeedKmh");
+  });
+
   it("parses an unknown plan and rejects unsupported runtime enums", () => {
     expect(parsePlan(validPlan)).toEqual(validPlan);
+    expect(
+      parsePlan({ ...validPlan, reachabilitySpeedKmh: 24 })
+        .reachabilitySpeedKmh,
+    ).toBe(24);
     expect(() =>
       parsePlan({
         ...validPlan,
         origin: { ...validPlan.origin, source: "guessed" },
       }),
     ).toThrow("origin.source");
+    expect(() =>
+      parsePlan({ ...validPlan, reachabilitySpeedKmh: "fast" }),
+    ).toThrow("reachabilitySpeedKmh");
     expect(() =>
       parsePlan({
         ...validPlan,

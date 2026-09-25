@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createReachabilityZone } from "./reachability-zone";
+import {
+  createReachabilityZone,
+  MAX_REACHABILITY_ZONE_RADIUS_KM,
+} from "./reachability-zone";
 
 function haversineKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {
   const toRad = (value: number) => (value * Math.PI) / 180;
@@ -38,6 +41,21 @@ describe("reachability zone", () => {
     expect(farthest).toBeGreaterThan(9);
   });
 
+  it("exposes a UI-facing boundary contract with a polygon and bounds", () => {
+    const zone = createReachabilityZone({
+      center: { latitude: 40.4168, longitude: -3.7038 },
+      radiusKm: 12,
+    });
+
+    expect(zone.kind).toBe("ring");
+    expect(zone.polygon).toEqual(zone.points);
+    expect(zone.bounds.north).toBeGreaterThan(zone.center.latitude);
+    expect(zone.bounds.south).toBeLessThan(zone.center.latitude);
+    expect(zone.bounds.east).toBeGreaterThan(zone.center.longitude);
+    expect(zone.bounds.west).toBeLessThan(zone.center.longitude);
+    expect(zone.bounds.north - zone.bounds.south).toBeGreaterThan(0);
+  });
+
   it("rejects invalid coordinates and non-positive radius values", () => {
     expect(() =>
       createReachabilityZone({
@@ -52,5 +70,11 @@ describe("reachability zone", () => {
         radiusKm: 0,
       }),
     ).toThrow("radiusKm");
+    expect(() =>
+      createReachabilityZone({
+        center: { latitude: 40.4168, longitude: -3.7038 },
+        radiusKm: MAX_REACHABILITY_ZONE_RADIUS_KM,
+      }),
+    ).toThrow("supported extent");
   });
 });

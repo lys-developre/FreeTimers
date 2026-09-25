@@ -1,16 +1,32 @@
 import type { GeoPoint } from "./routing";
 
+const earthRadiusKm = 6371;
+export const MAX_REACHABILITY_ZONE_RADIUS_KM = Math.PI * earthRadiusKm;
+
 export type ReachabilityZoneInput = {
   center: GeoPoint;
   radiusKm: number;
   samples?: number;
 };
 
+export type ReachabilityZoneBounds = {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+};
+
 export type ReachabilityZone = {
   center: GeoPoint;
   radiusKm: number;
   points: GeoPoint[];
+  polygon: GeoPoint[];
+  bounds: ReachabilityZoneBounds;
   areaKm2: number;
+  samples: number;
+  kind: "ring";
+  isApproximate: true;
+  coverage: "approximate";
 };
 
 function validateGeoPoint(point: GeoPoint, field: string): void {
@@ -44,7 +60,6 @@ function getDestinationPoint(
   distanceKm: number,
   bearingDegrees: number,
 ): GeoPoint {
-  const earthRadiusKm = 6371;
   const angularDistance = distanceKm / earthRadiusKm;
   const lat1 = toRadians(origin.latitude);
   const lon1 = toRadians(origin.longitude);
@@ -71,6 +86,22 @@ function getDestinationPoint(
   };
 }
 
+function calculateBounds(points: GeoPoint[]): ReachabilityZoneBounds {
+  let north = Number.NEGATIVE_INFINITY;
+  let south = Number.POSITIVE_INFINITY;
+  let east = Number.NEGATIVE_INFINITY;
+  let west = Number.POSITIVE_INFINITY;
+
+  for (const point of points) {
+    north = Math.max(north, point.latitude);
+    south = Math.min(south, point.latitude);
+    east = Math.max(east, point.longitude);
+    west = Math.min(west, point.longitude);
+  }
+
+  return { north, south, east, west };
+}
+
 export function createReachabilityZone(
   input: ReachabilityZoneInput,
 ): ReachabilityZone {
@@ -78,6 +109,11 @@ export function createReachabilityZone(
 
   if (!Number.isFinite(input.radiusKm) || input.radiusKm <= 0) {
     throw new RangeError("radiusKm must be a finite positive number");
+  }
+  if (input.radiusKm >= MAX_REACHABILITY_ZONE_RADIUS_KM) {
+    throw new RangeError(
+      "radiusKm exceeds the supported extent of a spherical boundary",
+    );
   }
 
   const samples = Number.isInteger(input.samples) && input.samples! > 2
@@ -90,11 +126,18 @@ export function createReachabilityZone(
   });
 
   const areaKm2 = Math.PI * input.radiusKm * input.radiusKm;
+  const bounds = calculateBounds(points);
 
   return {
     center: input.center,
     radiusKm: input.radiusKm,
     points,
+    polygon: points,
+    bounds,
     areaKm2,
+    samples,
+    kind: "ring",
+    isApproximate: true,
+    coverage: "approximate",
   };
 }

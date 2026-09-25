@@ -54,6 +54,18 @@ describe("local state envelope", () => {
     expect(importLocalState(exportLocalState(state))).toEqual(state);
   });
 
+  it("round-trips an editable reachability-speed assumption", () => {
+    const stateWithAssumption = {
+      ...state,
+      plan: createPlan({ ...plan, reachabilitySpeedKmh: 18.5 }),
+    };
+
+    expect(
+      importLocalState(exportLocalState(stateWithAssumption)).plan
+        ?.reachabilitySpeedKmh,
+    ).toBe(18.5);
+  });
+
   it("round-trips a validated active mission", () => {
     const stateWithMission = { ...state, activeMission };
 

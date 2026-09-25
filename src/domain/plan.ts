@@ -1,3 +1,5 @@
+import { MAX_REACHABILITY_SPEED_KMH } from "./reachability";
+
 export type LocationSource = "gps" | "manual" | "geocoded";
 
 export type PlanLocation = {
@@ -24,6 +26,7 @@ export type PlanInput = {
   returnDeadline: string;
   timeZone: string;
   returnMarginMinutes: number;
+  reachabilitySpeedKmh?: number;
   origin: PlanLocation;
   hub: PlanLocation;
   transport: Transport;
@@ -159,6 +162,16 @@ export function createPlan(input: PlanInput): Plan {
   }
 
   assertNonNegative(input.returnMarginMinutes, "returnMarginMinutes");
+  if (
+    input.reachabilitySpeedKmh !== undefined &&
+    (!Number.isFinite(input.reachabilitySpeedKmh) ||
+      input.reachabilitySpeedKmh <= 0 ||
+      input.reachabilitySpeedKmh > MAX_REACHABILITY_SPEED_KMH)
+  ) {
+    throw new RangeError(
+      `reachabilitySpeedKmh must be finite, positive, and no greater than ${MAX_REACHABILITY_SPEED_KMH}`,
+    );
+  }
   if (input.returnMarginMinutes >= windowMinutes) {
     throw new RangeError(
       "returnMarginMinutes must be shorter than the time window",
@@ -235,6 +248,14 @@ export function parsePlan(value: unknown): Plan {
       plan.returnMarginMinutes,
       "returnMarginMinutes",
     ),
+    ...(plan.reachabilitySpeedKmh === undefined
+      ? {}
+      : {
+          reachabilitySpeedKmh: numberValue(
+            plan.reachabilitySpeedKmh,
+            "reachabilitySpeedKmh",
+          ),
+        }),
     origin: parseLocation(plan.origin, "origin"),
     hub: parseLocation(plan.hub, "hub"),
     transport: parseTransport(plan.transport),
