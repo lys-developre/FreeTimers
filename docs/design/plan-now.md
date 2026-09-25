@@ -1,7 +1,7 @@
 # Plan Now configurator
 
 **Status:** Active  
-**Last reviewed:** 2026-09-19
+**Last reviewed:** 2026-09-25
 
 [Design index](./README.md) · [Implementation status](../implementation-status.md)
 
@@ -14,6 +14,8 @@ not accepting a recommendation.
 Implemented inputs:
 
 - start and return deadline;
+- a configurable return margin and an editable assumed average speed for
+  geometric reachability estimation;
 - total budget;
 - traveler count;
 - transport mode;
@@ -24,7 +26,9 @@ Implemented inputs:
 The current screen creates, edits, selects and deletes validated local vehicle
 profiles, persists the valid configuration locally, and offers JSON
 export/import for recovery. It does not request GPS, render a map or call
-providers.
+providers. It shows a geometry-only reachability estimate from the configured
+time window, margin, origin and assumed speed; the estimate is never a route
+feasibility result.
 
 ## Trust and states
 
@@ -37,7 +41,11 @@ providers.
   mode. Deleting the final compatible profile returns the plan to walking
   instead of retaining a dangling reference.
 - No recommendation is labelled safe: routing is not connected.
-- The helper text states that return feasibility is not yet calculated.
+- A reachability radius is labelled approximate; route feasibility remains
+  unknown until actual outbound and return routes are evaluated.
+- Speed defaults are editable assumptions: 4.5 km/h walking, 15 km/h bicycle,
+  and 40 km/h car or motorcycle. They are not measured or provider-derived.
+- Vehicle-profile nominal range is not treated as remaining fuel or charge.
 - Empty results mean the current synthetic missions do not fit the declared
   duration/budget heuristic; they are not proof that no real activity exists.
 
@@ -65,6 +73,13 @@ providers.
 ## Acceptance evidence
 
 - Browser check at `http://localhost:3000/` confirmed all controls render.
+- In an isolated browser context, changing the return margin and assumed speed
+  recalculated the displayed radius; the copy continued to state that route
+  feasibility is unknown.
+- At 375 px and 1280 px viewports the planner had no horizontal overflow; the
+  speed input was 48 px high and buttons met the 44 px minimum.
+- The margin and speed assumptions restored after reload, and the browser
+  console reported no warnings or errors.
 - Synthetic latitude `91` produced `origin.latitude is invalid`.
 - Browser console had no errors or warnings from the screen.
 - Responsive browser checks cover the canonical compact mobile, landscape,
@@ -80,5 +95,8 @@ transporte, varias fichas de vehículo seleccionables y hub manual. Su base
 móvil usa una sola columna y objetivos táctiles amplios; tablet y escritorio
 añaden contexto y columnas sin alterar el orden de la tarea. La pantalla valida
 los datos, conserva la configuración válida en el dispositivo y ofrece
-exportación/importación JSON. Todavía no existe cálculo real de regreso, no pide
-GPS y no presenta una recomendación como segura.
+exportación/importación JSON. Muestra un radio geométrico orientativo con
+margen y velocidad supuesta editables, pero no confirma rutas ni viabilidad de
+regreso; la autonomía nominal del vehículo no se toma como energía restante.
+Todavía no pide GPS, no renderiza un mapa y no presenta una recomendación como
+segura.

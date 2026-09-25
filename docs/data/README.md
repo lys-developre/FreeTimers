@@ -1,7 +1,7 @@
 # Data contracts
 
 **Status:** Decision  
-**Last reviewed:** 2026-09-19
+**Last reviewed:** 2026-09-25
 
 [Documentation index](../README.md) · [Plan](./plan.md) ·
 [Vehicles](./vehicles.md) · [Recommendations](./recommendations.md) ·
@@ -40,6 +40,7 @@ type Plan = {
   returnDeadline: string;
   timeZone: string;
   returnMarginMinutes: number;
+  reachabilitySpeedKmh?: number;
   origin: PlanLocation;
   hub: PlanLocation;
   transport:
@@ -53,6 +54,10 @@ type Plan = {
 The runtime validation for these fields is implemented in
 [createPlan](../../src/domain/plan.ts). It does not persist data or call
 providers.
+
+`reachabilitySpeedKmh` is an optional, user-editable assumption for a
+geometry-only radius estimate. It is not observed speed or route evidence, and
+omitting it keeps older persisted plans valid.
 
 Constraints:
 

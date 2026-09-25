@@ -1,7 +1,7 @@
 # Architecture
 
 **Status:** Decision  
-**Last reviewed:** 2026-09-19
+**Last reviewed:** 2026-09-25
 
 [Documentation index](../README.md) · [Current implementation](../implementation-status.md)
 
@@ -127,8 +127,9 @@ See [deployment boundaries](../security/README.md#deployment-boundaries).
 User input/GPS
   -> validate plan
   -> calculate remaining time
+  -> optionally show a labelled geometric estimate from explicit plan assumptions
   -> request normalized routes/isochrones
-  -> derive round-trip reachability (not an outbound isochrone alone)
+  -> derive route-backed reachability only from validated round-trip evidence
   -> load normalized activities
   -> route each candidate or use a matrix
   -> evaluate activity duration, schedule, cost, and return
@@ -232,3 +233,6 @@ Los proveedores son sustituibles mediante contratos internos.
 Las dependencias de código apuntan al dominio y los puertos; la composición
 inyecta adaptadores. Cada resultado identifica su revisión para descartar
 respuestas antiguas. Una isócrona de ida no demuestra que se pueda volver.
+El configurador puede mostrar un círculo geométrico basado en supuestos
+editables, pero ese círculo no modifica la viabilidad, que sigue desconocida
+hasta evaluar rutas de ida y vuelta válidas.

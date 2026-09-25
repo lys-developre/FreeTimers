@@ -2,7 +2,7 @@
 
 **Status:** Decision  
 **Deterministic contract:** Yes
-**Last reviewed:** 2026-09-19
+**Last reviewed:** 2026-09-25
 
 [Data contracts](./README.md) · [Documentation index](../README.md)
 
@@ -81,6 +81,17 @@ probabilistic model.
   this assumption; it does not mean an activity fits there.
 - Outbound and return routes may differ. Do not double outbound travel time or
   halve the window and call the resulting isochrone a verified round trip.
+- A circle derived from an editable average-speed assumption and an equal split
+  of travel time may be shown only as an approximate geometric estimate.
+  Feasibility remains `unknown`; do not label the circle `safe`, `tight`, or a
+  route-backed isochrone.
+- Speed defaults are editable assumptions, not measured or provider-derived
+  values. A vehicle profile's nominal range is not its remaining fuel or
+  charge, so it cannot cap current reachability without a current energy
+  observation.
+- If a theoretical radius reaches the antipodal limit of the spherical model,
+  do not emit a polygon; keep feasibility `unknown` and explain the geometry
+  limit.
 - Once a mission starts, outbound origin is current GPS/manual location while
   return destination remains hub. Concentric outbound rings cannot represent
   that entire problem.
@@ -222,6 +233,17 @@ validado.
 
 - El área general representa movilidad con `wait = stay = 0`, no una actividad.
 - Ida y vuelta pueden diferir; no se duplica la ida.
+- Un círculo derivado de una velocidad media editable y de repartir el tiempo
+  de viaje por igual solo puede mostrarse como estimación geométrica
+  aproximada. La viabilidad sigue `unknown`; no se etiqueta como `safe`,
+  `tight` ni como isócrona respaldada por rutas.
+- Las velocidades iniciales son supuestos editables, no valores medidos ni
+  obtenidos de proveedores. La autonomía nominal de una ficha no indica el
+  combustible o carga restante y no limita el alcance actual sin una observación
+  de energía disponible.
+- Si el radio teórico alcanza el límite antipodal del modelo esférico, no se
+  genera un polígono; la viabilidad permanece `unknown` y se explica el límite
+  geométrico.
 - En misión activa, el origen es la posición actual y el destino sigue siendo
   el hub.
 - Las isócronas pueden acotar búsqueda; zonas finales requieren ida y vuelta
