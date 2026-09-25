@@ -28,7 +28,7 @@ and tests that demonstrate the change.
 | Local persistence, import/export | Schema version 2 persists the active-mission record and validates nested plan/vehicle references; version 1 migration, IndexedDB and JSON import/export are implemented; multi-tab conflict handling remains pending | [Envelope](../src/adapters/local-state.ts), [IndexedDB adapter](../src/adapters/indexed-db.ts), [Screen](../src/app/page.tsx), [Tests](../src/adapters/local-state.test.ts), [Data target](./data/README.md#persistence-and-migrations) |
 | Route coverage contract | Implemented domain slice: route requests, coverage classification, freshness and expiry validation, and conversion to feasibility evidence; live map rendering and provider-backed routing remain pending | [Routing domain](../src/domain/routing.ts), [Tests](../src/domain/routing.test.ts), [Feasibility target](./data/feasibility.md) |
 | Synthetic routing adapter | Implemented adapter with deterministic synthetic fixtures, unsupported-area handling and missing-route fallbacks; no real route provider or map layer yet | [Adapter](../src/adapters/synthetic-routing.ts), [Tests](../src/adapters/synthetic-routing.test.ts) |
-| Round-trip reachability estimate | Implemented domain slice for deterministic radius estimation from remaining window, margin and speed; no map rendering or provider-backed geospatial coverage yet | [Reachability domain](../src/domain/reachability.ts), [Tests](../src/domain/reachability.test.ts), [Feasibility target](./data/feasibility.md) |
+| Round-trip reachability estimate | Implemented domain slice for deterministic radius estimation from remaining window, margin, speed and a generated round-trip zone boundary; no map rendering or provider-backed geospatial coverage yet | [Reachability domain](../src/domain/reachability.ts), [Reachability zone](../src/domain/reachability-zone.ts), [Tests](../src/domain/reachability.test.ts), [Zone tests](../src/domain/reachability-zone.test.ts), [Feasibility target](./data/feasibility.md) |
 | GPS, maps, isochrones, return margin | Not implemented | [Feasibility target](./data/feasibility.md) |
 | Live activities, weather, calendar, LLM | No connectors or credentials consumed | [Architecture target](./architecture/README.md) |
 | Installable/offline PWA | Not implemented; local-first is a target, not offline availability | [Operations](./operations/README.md#operational-limitations) |
@@ -79,8 +79,8 @@ existe un contrato de rutas y cobertura que valida frescura, expiración y
 estados de cobertura antes de que la evidencia pueda alimentar la viabilidad.
 También hay un adaptador sintético de rutas para devolver resultados reales de
 entorno controlado sin depender de proveedores externos ni de un mapa visual, y
-una estimación determinista de radio de alcance a partir del margen de regreso y
-la velocidad. Aún no existen mapa real, GPS, PWA offline ni proveedores de rutas
-en vivo. La etiqueta actual de seguridad no calcula la vuelta y no debe usarse
-para decidir viajes reales. Este registro distingue código existente de
-objetivos.
+una estimación determinista de radio y zona de alcance a partir del margen de
+regreso y la velocidad. Aún no existen mapa real, GPS, PWA offline ni
+proveedores de rutas en vivo. La etiqueta actual de seguridad no calcula la
+vuelta y no debe usarse para decidir viajes reales. Este registro distingue
+código existente de objetivos.
